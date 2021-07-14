@@ -64,6 +64,22 @@ export class BansController {
 			},
 		},
 	})
+	async list(): Promise<BanReport[]> {
+		return this.banReportRepository.find();
+	}
+
+	@get('/find')
+	@response(200, {
+		description: 'Array of BanReport model instances',
+		content: {
+			'application/json': {
+				schema: {
+					type: 'array',
+					items: getModelSchemaRef(BanReport, { includeRelations: true }),
+				},
+			},
+		},
+	})
 	async find(
 	@param.filter(BanReport) filter?: Filter<BanReport>,
 	): Promise<BanReport[]> {
