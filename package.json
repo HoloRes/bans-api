@@ -58,7 +58,7 @@
   "devDependencies": {
     "@loopback/build": "6.4.1",
     "@loopback/eslint-config": "10.2.1",
-    "@loopback/testlab": "3.4.1",
+    "@loopback/testlab": "3.4.2",
     "@types/node": "10.17.60",
     "eslint": "7.30.0",
     "eslint-config-airbnb-base": "14.2.1",
