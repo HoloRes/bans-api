@@ -1,2 +1,2 @@
 export * from './mongo-db.datasource';
-export * from './mongo-db-api-keys.datasource';
+export * from './redis.datasource';

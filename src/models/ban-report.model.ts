@@ -11,7 +11,6 @@ export class BanReport extends Entity {
 	@property({
 		type: 'number',
 		id: true,
-		generated: true,
 	})
 	id?: number;
 
@@ -56,6 +55,12 @@ export class BanReport extends Entity {
 		default: false,
 	})
 	appealed?: boolean;
+
+	@property({
+		type: 'array',
+		itemType: 'string',
+	})
+	altOf?: string[];
 
 	constructor(data?: Partial<BanReport>) {
 		super(data);

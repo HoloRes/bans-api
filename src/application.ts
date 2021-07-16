@@ -1,13 +1,22 @@
+import { AuthenticationBindings, AuthenticationComponent } from '@loopback/authentication';
+import {
+	AuthorizationBindings, AuthorizationComponent, AuthorizationDecision, AuthorizationTags,
+} from '@loopback/authorization';
 import { BootMixin } from '@loopback/boot';
-import { ApplicationConfig } from '@loopback/core';
+import { ApplicationConfig, CoreTags } from '@loopback/core';
+import { RepositoryMixin } from '@loopback/repository';
+import { RestApplication } from '@loopback/rest';
 import {
 	RestExplorerBindings,
 	RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import { RepositoryMixin } from '@loopback/repository';
-import { RestApplication } from '@loopback/rest';
 import { ServiceMixin } from '@loopback/service-proxy';
+import Express from 'express';
+import { RateLimiterComponent, RateLimitSecurityBindings } from 'loopback4-ratelimiter';
 import path from 'path';
+import { AuthorizationProvider } from './authentication/authorizer.provider';
+import { bearerAuthStrategy } from './authentication/bearer.strategy';
+import apiKey from './mongodb/models/apiKey';
 import { MySequence } from './sequence';
 
 export { ApplicationConfig };
@@ -17,6 +26,40 @@ export class BansApiApplication extends BootMixin(
 ) {
 	constructor(options: ApplicationConfig = {}) {
 		super(options);
+
+		// Rate limiter
+		this.component(RateLimiterComponent);
+		this.bind(RateLimitSecurityBindings.CONFIG).to({
+			name: 'redis',
+			type: 'RedisStore',
+			max: async (req: Express.Request) => {
+				const client = await apiKey.findOne({ key: req.headers?.authorization?.replace(/bearer /i, '') }).lean().exec();
+				return client ? 300 : 120;
+			},
+			keyGenerator: async (req: Express.Request) => {
+				const client = await apiKey.findOne({ key: req.headers?.authorization?.replace(/bearer /i, '') }).lean().exec();
+				return client ? client.key : req.ip;
+			},
+		});
+
+		// Authentication
+		this.component(AuthenticationComponent);
+		this.bind('authentication.strategies.bearerAuthStrategy')
+			.to(bearerAuthStrategy)
+			.tag({
+				[CoreTags.EXTENSION_FOR]:
+					AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
+			});
+
+		// Authorization
+		this.configure(AuthorizationBindings.COMPONENT).to({
+			precedence: AuthorizationDecision.DENY,
+			defaultDecision: AuthorizationDecision.DENY,
+		});
+		this.component(AuthorizationComponent);
+		this.bind('authorizationProviders.authorizer-provider')
+			.toProvider(AuthorizationProvider)
+			.tag(AuthorizationTags.AUTHORIZER);
 
 		// Set up the custom sequence
 		this.sequence(MySequence);

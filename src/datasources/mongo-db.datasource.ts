@@ -6,10 +6,10 @@ const config = {
 	connector: 'mongodb',
 	url: '',
 	host: '',
-	port: 0,
+	port: 27017,
 	user: '',
 	password: '',
-	database: 'bans',
+	database: 'bans-api',
 	useNewUrlParser: true,
 };
 

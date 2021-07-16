@@ -1,3 +1,5 @@
+import { authenticate } from '@loopback/authentication';
+import { authorize } from '@loopback/authorization';
 import {
 	Count,
 	CountSchema,
@@ -8,7 +10,7 @@ import {
 } from '@loopback/repository';
 import {
 	del, get,
-	getModelSchemaRef, param, patch, post, put, requestBody,
+	getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
 	response,
 } from '@loopback/rest';
 import { BanReport } from '../models';
@@ -25,6 +27,8 @@ export class BansController {
 		description: 'BanReport model instance',
 		content: { 'application/json': { schema: getModelSchemaRef(BanReport) } },
 	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['CREATE'] })
 	async create(
 	@requestBody({
 		content: {
@@ -119,6 +123,23 @@ export class BansController {
 	@param.filter(BanReport, { exclude: 'where' }) filter?: FilterExcludingWhere<BanReport>,
 	): Promise<BanReport> {
 		return this.banReportRepository.findById(id, filter);
+	}
+
+	@get('/check/{id}')
+	@response(200, {
+		description: 'BanReport model instance',
+		content: {
+			'application/json': {
+				schema: getModelSchemaRef(BanReport, { includeRelations: true }),
+			},
+		},
+	})
+	async findUserById(
+	@param.path.string('id') id: string,
+	): Promise<BanReport> {
+		const doc = await this.banReportRepository.findOne({ userId: id } as Filter<BanReport>);
+		if (doc) return doc;
+		throw HttpErrors(404, `Entity not found: banReport with userId ${id}`, { name: 'Error', code: 'ENTITY_NOT_FOUND' });
 	}
 
 	@patch('/ban/{id}')

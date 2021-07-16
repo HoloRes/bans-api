@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { ApplicationConfig, BansApiApplication } from './application';
 
 export * from './application';
@@ -15,10 +16,18 @@ export async function main(options: ApplicationConfig = {}) {
 }
 
 if (require.main === module) {
+	// Connect mongoose
+	// eslint-disable-next-line no-void
+	void mongoose.connect('mongodb://localhost:27017/bans-api', {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useFindAndModify: false,
+	});
+
 	// Run the application
 	const config = {
 		rest: {
-			port: +(process.env.PORT ?? 3000),
+			port: +(process.env.PORT ?? 8300),
 			host: process.env.HOST,
 			// The `gracePeriodForClose` provides a graceful close for http/https
 			// servers with keep-alive clients. The default value is `Infinity`
