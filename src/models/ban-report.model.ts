@@ -1,6 +1,6 @@
 import { Entity, model, property } from '@loopback/repository';
 
-@model()
+@model({ settings: { mongodb: { collection: 'bans' } } })
 export class BanReport extends Entity {
 	@property({
 		type: 'string',

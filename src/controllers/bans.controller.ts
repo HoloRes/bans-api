@@ -95,6 +95,8 @@ export class BansController {
 		description: 'BanReport PATCH success count',
 		content: { 'application/json': { schema: CountSchema } },
 	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['ADMIN'] })
 	async updateAll(
 	@requestBody({
 		content: {
@@ -142,10 +144,48 @@ export class BansController {
 		throw HttpErrors(404, `Entity not found: banReport with userId ${id}`, { name: 'Error', code: 'ENTITY_NOT_FOUND' });
 	}
 
+	@patch('/ban/{id}/proof')
+	@response(204, {
+		description: 'BanReport PATCH success',
+	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['CREATE'] })
+	async updateProof(
+		@param.path.number('id') id: number,
+		@requestBody.array({
+			schema: { type: 'string' },
+		}, {
+			description: 'An array of url\'s linking to proof images',
+			required: true,
+		}) urls: string[],
+	): Promise<void> {
+		await this.banReportRepository.execute('bans', 'update', [{ q: { _id: id }, $push: { proof: { $each: urls } } }]);
+	}
+
+	@patch('/ban/{id}/alt')
+	@response(204, {
+		description: 'BanReport PATCH success',
+	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['CREATE'] })
+	async updateAltList(
+		@param.path.number('id') id: number,
+		@requestBody.array({
+			schema: { type: 'string' },
+		}, {
+			description: 'An array of Discord user id\'s',
+			required: true,
+		}) urls: string[],
+	): Promise<void> {
+		await this.banReportRepository.execute('bans', 'update', [{ q: { _id: id }, $push: { altOf: { $each: urls } } }]);
+	}
+
 	@patch('/ban/{id}')
 	@response(204, {
 		description: 'BanReport PATCH success',
 	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['ADMIN'] })
 	async updateById(
 	@param.path.number('id') id: number,
 	@requestBody({
@@ -164,6 +204,8 @@ export class BansController {
 	@response(204, {
 		description: 'BanReport PUT success',
 	})
+	@authenticate('bearer')
+	@authorize({ scopes: ['ADMIN'] })
 	async replaceById(
 	@param.path.number('id') id: number,
 	@requestBody() banReport: BanReport,

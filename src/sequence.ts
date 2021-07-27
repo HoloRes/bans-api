@@ -21,7 +21,7 @@ import helmet from 'helmet';
 import { RateLimitAction, RateLimitSecurityBindings } from 'loopback4-ratelimiter';
 
 const middlewareList: ExpressRequestHandler[] = [
-	helmet({}),
+	helmet({ contentSecurityPolicy: false }),
 ];
 
 export class MySequence implements SequenceHandler {

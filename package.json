@@ -54,14 +54,19 @@
     "@loopback/rest": "^10.0.0",
     "@loopback/rest-explorer": "^3.3.2",
     "@loopback/service-proxy": "^3.2.2",
+    "@sendgrid/mail": "^7.4.5",
     "@types/passport-http-bearer": "^1.0.37",
+    "axios": "^0.21.1",
+    "generate-password": "^1.6.1",
     "helmet": "^4.6.0",
     "loopback-connector-kv-redis": "^4.0.0",
     "loopback-connector-mongodb": "^6.0.0",
     "loopback4-ratelimiter": "^2.2.0",
     "mongoose": "^5.13.2",
+    "mongoose-hidden": "^1.9.1",
     "passport-http-bearer": "^1.0.1",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zeromq": "^5.2.8"
   },
   "devDependencies": {
     "@loopback/build": "7.0.0",
@@ -69,6 +74,7 @@
     "@loopback/testlab": "3.4.2",
     "@types/mongoose": "5.11.97",
     "@types/node": "16.4.3",
+    "@types/zeromq": "^5.2.0",
     "eslint": "7.31.0",
     "eslint-config-airbnb-base": "14.2.1",
     "eslint-plugin-import": "2.23.4",
