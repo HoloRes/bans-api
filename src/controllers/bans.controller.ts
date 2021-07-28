@@ -15,6 +15,7 @@ import {
 } from '@loopback/rest';
 import { BanReport } from '../models';
 import { BanReportRepository } from '../repositories';
+import { publish, publishRemoval } from '../zeromq';
 
 export class BansController {
 	constructor(
@@ -42,7 +43,9 @@ export class BansController {
 	})
 		banReport: Omit<BanReport, 'id'>,
 	): Promise<BanReport> {
-		return this.banReportRepository.create(banReport);
+		const document = await this.banReportRepository.create(banReport);
+		await publish('create', document.toJSON());
+		return document;
 	}
 
 	@get('/count')
@@ -88,6 +91,11 @@ export class BansController {
 	@param.filter(BanReport) filter?: Filter<BanReport>,
 	): Promise<BanReport[]> {
 		return this.banReportRepository.find(filter);
+		/* const docs = await this.banReportRepository.find(filter);
+
+		return docs.map((doc) => ({
+
+		})) as BanReport[]; */
 	}
 
 	@patch('/ban')
@@ -160,6 +168,8 @@ export class BansController {
 		}) urls: string[],
 	): Promise<void> {
 		await this.banReportRepository.execute('bans', 'update', [{ q: { _id: id }, $push: { proof: { $each: urls } } }]);
+		const document = await this.banReportRepository.findById(id);
+		await publish('update', document);
 	}
 
 	@patch('/ban/{id}/alt')
@@ -178,6 +188,8 @@ export class BansController {
 		}) urls: string[],
 	): Promise<void> {
 		await this.banReportRepository.execute('bans', 'update', [{ q: { _id: id }, $push: { altOf: { $each: urls } } }]);
+		const document = await this.banReportRepository.findById(id);
+		await publish('update', document);
 	}
 
 	@patch('/ban/{id}')
@@ -198,6 +210,8 @@ export class BansController {
 		banReport: BanReport,
 	): Promise<void> {
 		await this.banReportRepository.updateById(id, banReport);
+		const document = await this.banReportRepository.findById(id);
+		await publish('update', document);
 	}
 
 	@put('/ban/{id}')
@@ -219,5 +233,6 @@ export class BansController {
 	})
 	async deleteById(@param.path.number('id') id: number): Promise<void> {
 		await this.banReportRepository.deleteById(id);
+		await publishRemoval(id.toString(10));
 	}
 }

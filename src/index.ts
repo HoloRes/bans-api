@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { ApplicationConfig, BansApiApplication } from './application';
+import 'dotenv/config';
 
 export * from './application';
 

@@ -57,6 +57,7 @@
     "@sendgrid/mail": "^7.4.5",
     "@types/passport-http-bearer": "^1.0.37",
     "axios": "^0.21.1",
+    "dotenv": "^10.0.0",
     "generate-password": "^1.6.1",
     "helmet": "^4.6.0",
     "loopback-connector-kv-redis": "^4.0.0",
