@@ -1,9 +1,12 @@
-import { AuthenticationBindings, AuthenticationComponent } from '@loopback/authentication';
+import {
+	AuthenticationComponent,
+	registerAuthenticationStrategy,
+} from '@loopback/authentication';
 import {
 	AuthorizationBindings, AuthorizationComponent, AuthorizationDecision, AuthorizationTags,
 } from '@loopback/authorization';
 import { BootMixin } from '@loopback/boot';
-import { ApplicationConfig, CoreTags } from '@loopback/core';
+import { ApplicationConfig } from '@loopback/core';
 import { RepositoryMixin } from '@loopback/repository';
 import { RestApplication } from '@loopback/rest';
 import {
@@ -15,7 +18,8 @@ import Express from 'express';
 import { RateLimiterComponent, RateLimitSecurityBindings } from 'loopback4-ratelimiter';
 import path from 'path';
 import { AuthorizationProvider } from './authentication/authorizer.provider';
-import { bearerAuthStrategy } from './authentication/bearer.strategy';
+import { ApiKeyAuthenticationStrategy } from './authentication/apikey.strategy';
+import { NoAuthAuthenticationStrategy } from './authentication/noauth.strategy';
 import apiKey from './mongodb/models/apiKey';
 import { MySequence } from './sequence';
 
@@ -33,23 +37,20 @@ export class BansApiApplication extends BootMixin(
 			name: 'redis',
 			type: 'RedisStore',
 			max: async (req: Express.Request) => {
-				const client = await apiKey.findOne({ key: req.headers?.authorization?.replace(/bearer /i, '') }).lean().exec();
+				const client = await apiKey.findOne({ key: req.get('X-API-KEY') }).lean().exec();
 				return client ? 300 : 120;
 			},
 			keyGenerator: async (req: Express.Request) => {
-				const client = await apiKey.findOne({ key: req.headers?.authorization?.replace(/bearer /i, '') }).lean().exec();
+				const client = await apiKey.findOne({ key: req.get('X-API-KEY') }).lean().exec();
 				return client ? client.key : req.ip;
 			},
 		});
 
 		// Authentication
 		this.component(AuthenticationComponent);
-		this.bind('authentication.strategies.bearerAuthStrategy')
-			.to(bearerAuthStrategy)
-			.tag({
-				[CoreTags.EXTENSION_FOR]:
-					AuthenticationBindings.AUTHENTICATION_STRATEGY_EXTENSION_POINT_NAME,
-			});
+
+		registerAuthenticationStrategy(this, ApiKeyAuthenticationStrategy);
+		registerAuthenticationStrategy(this, NoAuthAuthenticationStrategy);
 
 		// Authorization
 		this.configure(AuthorizationBindings.COMPONENT).to({

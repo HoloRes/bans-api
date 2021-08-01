@@ -1,6 +1,6 @@
+import 'dotenv/config';
 import mongoose from 'mongoose';
 import { ApplicationConfig, BansApiApplication } from './application';
-import 'dotenv/config';
 
 export * from './application';
 
@@ -37,8 +37,13 @@ if (require.main === module) {
 			// See https://www.npmjs.com/package/stoppable
 			gracePeriodForClose: 5000, // 5 seconds
 			openApiSpec: {
+				servers: [{ url: 'http://localhost:3000' }, { url: 'https://bans.suisei.app' }],
 				// useful when used with OpenAPI-to-GraphQL to locate your application
-				setServersFromRequest: true,
+				setServersFromRequest: false,
+				endpointMapping: {
+					'/openapi.json': { version: '3.0.0', format: 'json' },
+					'/openapi.yaml': { version: '3.0.0', format: 'yaml' },
+				},
 			},
 		},
 	};

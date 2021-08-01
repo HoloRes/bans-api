@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import zmq from 'zeromq';
 import User from './mongodb/models/userData';
 import Webhook, { IWebhook } from './mongodb/models/webhook';
+import { BanReport } from './models';
 
 export const socket = zmq.socket('pub');
 export default socket;
@@ -29,7 +30,8 @@ async function sendWarningEmail(webhook: IWebhook) {
 }
 
 export async function publishRemoval(id: string) {
-	socket.send(['delete', id]); const webhooks = await Webhook.find({ subscriptions: 'delete', disabled: false }).exec();
+	socket.send(['delete', id]);
+	const webhooks = await Webhook.find({ subscriptions: 'delete', disabled: false }).exec();
 
 	webhooks.forEach((webhook) => {
 		const signature = crypto
@@ -63,8 +65,10 @@ export async function publishRemoval(id: string) {
 	});
 }
 
-export async function publish(type: string, document: object) {
-	socket.send([type, JSON.stringify(document)]);
+export async function publish(type: string, document: BanReport) {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { proof: _, ...publicDocument } = document;
+	socket.send([type, JSON.stringify(publicDocument)]);
 
 	const webhooks = await Webhook.find({ subscriptions: type, disabled: false }).exec();
 
@@ -77,7 +81,7 @@ export async function publish(type: string, document: object) {
 
 		axios.post(webhook.url, {
 			type,
-			ban: document,
+			ban: (webhook.permissions.includes('VIEWALL') ? document : publicDocument),
 		}, {
 			headers: {
 				'X-Signature': signature,

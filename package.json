@@ -1,6 +1,6 @@
 {
   "name": "bans-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Suisei bans API",
   "keywords": [
     "loopback-application",
@@ -46,6 +46,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@loopback/authentication": "^7.3.2",
     "@loopback/authentication-passport": "^3.2.2",
     "@loopback/authorization": "^0.9.2",
     "@loopback/boot": "^3.4.2",
@@ -55,7 +56,6 @@
     "@loopback/rest-explorer": "^3.3.2",
     "@loopback/service-proxy": "^3.2.2",
     "@sendgrid/mail": "^7.4.5",
-    "@types/passport-http-bearer": "^1.0.37",
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "generate-password": "^1.6.1",
@@ -65,7 +65,6 @@
     "loopback4-ratelimiter": "^2.2.0",
     "mongoose": "^5.13.2",
     "mongoose-hidden": "^1.9.1",
-    "passport-http-bearer": "^1.0.1",
     "tslib": "^2.3.0",
     "zeromq": "^5.2.8"
   },

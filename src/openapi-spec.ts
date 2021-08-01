@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { ApplicationConfig } from '@loopback/core';
 import { BansApiApplication } from './application';
 

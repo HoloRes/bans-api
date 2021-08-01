@@ -1,0 +1,789 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "bans-api",
+    "version": "0.1.0",
+    "description": "Suisei bans API",
+    "contact": {
+      "name": "GoldElysium",
+      "email": "goldelysium@gmail.com"
+    }
+  },
+  "paths": {
+    "/ban/{id}/alt": {
+      "patch": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "updateAltList",
+        "tags": [
+          "BansController"
+        ],
+        "description": "Add an alt user id to an existing ban. Requires `CREATE` permission.",
+        "responses": {
+          "204": {
+            "description": "BanReport PATCH success"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "deprecated": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "description": "An array of Discord user id's",
+          "required": true,
+          "x-parameter-index": 1
+        },
+        "operationId": "BansController.updateAltList"
+      }
+    },
+    "/ban/{id}/proof": {
+      "patch": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "updateProof",
+        "tags": [
+          "BansController"
+        ],
+        "description": "Add proof to a ban. Requires `CREATE` permission.",
+        "responses": {
+          "204": {
+            "description": "BanReport PATCH success"
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "description": "An array of url's linking to proof images",
+          "required": true,
+          "x-parameter-index": 1
+        },
+        "operationId": "BansController.updateProof"
+      }
+    },
+    "/ban/{id}": {
+      "get": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "findById",
+        "tags": [
+          "BansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "BanReport model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanReportWithRelations"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanReport.Filter"
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "BansController.findById"
+      }
+    },
+    "/ban": {
+      "post": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "create",
+        "tags": [
+          "BansController"
+        ],
+        "description": "Add proof to a ban. Requires `CREATE` permission.",
+        "responses": {
+          "200": {
+            "description": "BanReport model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanReport"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewBanReport"
+              }
+            }
+          }
+        },
+        "operationId": "BansController.create"
+      }
+    },
+    "/check/{id}": {
+      "get": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "findUserById",
+        "tags": [
+          "BansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "BanReport model instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanReportWithRelations"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "operationId": "BansController.findUserById"
+      }
+    },
+    "/count": {
+      "get": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "count",
+        "tags": [
+          "BansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "BanReport model count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/loopback.Count"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "where",
+            "in": "query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "BanReport.WhereFilter",
+                  "additionalProperties": true,
+                  "x-typescript-type": "@loopback/repository#Where<BanReport>"
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "BansController.count"
+      }
+    },
+    "/find": {
+      "get": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "find",
+        "tags": [
+          "BansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of BanReport model instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BanReportWithRelations"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BanReport.Filter1"
+                }
+              }
+            }
+          }
+        ],
+        "operationId": "BansController.find"
+      }
+    },
+    "/list": {
+      "get": {
+        "x-controller-name": "BansController",
+        "x-operation-name": "list",
+        "tags": [
+          "BansController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of BanReport model instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BanReportWithRelations"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "BansController.list"
+      }
+    },
+    "/ping": {
+      "get": {
+        "x-controller-name": "PingController",
+        "x-operation-name": "ping",
+        "tags": [
+          "PingController"
+        ],
+        "responses": {
+          "200": {
+            "description": "Ping Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PingResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "PingController.ping"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY"
+      },
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY"
+      }
+    },
+    "schemas": {
+      "BanReport": {
+        "title": "BanReport",
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          },
+          "moderator": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "appealed": {
+            "type": "boolean"
+          },
+          "altOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "moderator",
+          "type",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "NewBanReport": {
+        "title": "NewBanReport",
+        "type": "object",
+        "description": "(tsType: Omit<BanReport, 'id'>, schemaOptions: { title: 'NewBanReport', exclude: [ 'id' ] })",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "moderator": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "appealed": {
+            "type": "boolean"
+          },
+          "altOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "moderator",
+          "type",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "x-typescript-type": "Omit<BanReport, 'id'>"
+      },
+      "BanReportWithRelations": {
+        "title": "BanReportWithRelations",
+        "type": "object",
+        "description": "(tsType: BanReportWithRelations, schemaOptions: { includeRelations: true })",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          },
+          "moderator": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "appealed": {
+            "type": "boolean"
+          },
+          "altOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "moderator",
+          "type",
+          "reason"
+        ],
+        "additionalProperties": false,
+        "x-typescript-type": "BanReportWithRelations"
+      },
+      "BanReportPartial": {
+        "title": "BanReportPartial",
+        "type": "object",
+        "description": "(tsType: Partial<BanReport>, schemaOptions: { partial: true })",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          },
+          "moderator": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "appealed": {
+            "type": "boolean"
+          },
+          "altOf": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-typescript-type": "Partial<BanReport>"
+      },
+      "BanReport.Filter": {
+        "type": "object",
+        "title": "BanReport.Filter",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 100
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "order": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "fields": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "boolean"
+                  },
+                  "moderator": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "boolean"
+                  },
+                  "reason": {
+                    "type": "boolean"
+                  },
+                  "proof": {
+                    "type": "boolean"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "valid": {
+                    "type": "boolean"
+                  },
+                  "appealed": {
+                    "type": "boolean"
+                  },
+                  "altOf": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "userId",
+                    "id",
+                    "moderator",
+                    "type",
+                    "reason",
+                    "proof",
+                    "active",
+                    "valid",
+                    "appealed",
+                    "altOf"
+                  ],
+                  "example": "userId"
+                },
+                "uniqueItems": true
+              }
+            ],
+            "title": "BanReport.Fields"
+          }
+        },
+        "additionalProperties": false,
+        "x-typescript-type": "@loopback/repository#Filter<BanReport>"
+      },
+      "loopback.Count": {
+        "type": "object",
+        "title": "loopback.Count",
+        "x-typescript-type": "@loopback/repository#Count",
+        "properties": {
+          "count": {
+            "type": "number"
+          }
+        }
+      },
+      "BanReport.Filter1": {
+        "type": "object",
+        "title": "BanReport.Filter",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 100
+          },
+          "skip": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "order": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "where": {
+            "title": "BanReport.WhereFilter",
+            "type": "object",
+            "additionalProperties": true
+          },
+          "fields": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "boolean"
+                  },
+                  "moderator": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "boolean"
+                  },
+                  "reason": {
+                    "type": "boolean"
+                  },
+                  "proof": {
+                    "type": "boolean"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "valid": {
+                    "type": "boolean"
+                  },
+                  "appealed": {
+                    "type": "boolean"
+                  },
+                  "altOf": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "userId",
+                    "id",
+                    "moderator",
+                    "type",
+                    "reason",
+                    "proof",
+                    "active",
+                    "valid",
+                    "appealed",
+                    "altOf"
+                  ],
+                  "example": "userId"
+                },
+                "uniqueItems": true
+              }
+            ],
+            "title": "BanReport.Fields"
+          }
+        },
+        "additionalProperties": false,
+        "x-typescript-type": "@loopback/repository#Filter<BanReport>"
+      },
+      "PingResponse": {
+        "type": "object",
+        "title": "PingResponse",
+        "properties": {
+          "greeting": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "headers": {
+            "type": "object",
+            "properties": {
+              "Content-Type": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  }
+}

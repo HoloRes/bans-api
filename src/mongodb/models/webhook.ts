@@ -9,6 +9,7 @@ export interface IWebhook {
     disabled: boolean;
     subscriptions: string[];
     failures: number;
+    permissions: string[];
 }
 
 const WebhookSchema = new mongoose.Schema({
@@ -18,6 +19,7 @@ const WebhookSchema = new mongoose.Schema({
 	disabled: { type: Boolean, default: false },
 	subscriptions: [String],
 	failures: { type: Number, default: 0, hidden: true },
+	permissions: { type: [String] },
 });
 WebhookSchema.plugin(mongooseHidden());
 
