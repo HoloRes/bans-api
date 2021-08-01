@@ -8,7 +8,7 @@ import { securityId, UserProfile } from '@loopback/security';
 
 @injectable(asAuthStrategy)
 export class NoAuthAuthenticationStrategy implements AuthenticationStrategy {
-	name = 'no-auth';
+	name = 'NoAuth';
 
 	constructor() {}
 

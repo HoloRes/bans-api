@@ -9,7 +9,6 @@ import {
 	Where,
 } from '@loopback/repository';
 import {
-	api,
 	del, deprecated, get,
 	getModelSchemaRef, HttpErrors, operation, param, patch, put, requestBody,
 	response, visibility,
@@ -20,15 +19,7 @@ import { OperationVisibility } from '@loopback/openapi-v3';
 import { BanReport } from '../models';
 import { BanReportRepository } from '../repositories';
 import { publish, publishRemoval } from '../zeromq';
-import { schemeSpec } from '../authentication/apikey.strategy';
 
-@api({
-	components: {
-		securitySchemes: {
-			ApiKey: schemeSpec,
-		},
-	},
-})
 export class BansController {
 	constructor(
 	@repository(BanReportRepository)
@@ -47,7 +38,7 @@ export class BansController {
 		},
 		security: [{ ApiKey: [] }],
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['CREATE'] })
 	async create(
 	@requestBody({
@@ -90,7 +81,7 @@ export class BansController {
 			},
 		},
 	})
-	@authenticate('api-key', 'no-auth')
+	@authenticate('ApiKey', 'NoAuth')
 	async list(): Promise<BanReport[]> {
 		if (this.userProfile.permissions!.includes('VIEWALL')) return this.banReportRepository.find();
 
@@ -115,7 +106,7 @@ export class BansController {
 			},
 		},
 	})
-	@authenticate('api-key', 'no-auth')
+	@authenticate('ApiKey', 'NoAuth')
 	async find(
 	@param.filter(BanReport) filter?: Filter<BanReport>,
 	): Promise<BanReport[]> {
@@ -135,7 +126,7 @@ export class BansController {
 		description: 'BanReport PATCH success count',
 		content: { 'application/json': { schema: CountSchema } },
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['ADMIN'] })
 	@visibility(OperationVisibility.UNDOCUMENTED)
 	async updateAll(
@@ -161,7 +152,7 @@ export class BansController {
 			},
 		},
 	})
-	@authenticate('api-key', 'no-auth')
+	@authenticate('ApiKey', 'NoAuth')
 	async findById(
 	@param.path.number('id') id: number,
 	@param.filter(BanReport, { exclude: 'where' }) filter?: FilterExcludingWhere<BanReport>,
@@ -181,7 +172,7 @@ export class BansController {
 			},
 		},
 	})
-	@authenticate('api-key', 'no-auth')
+	@authenticate('ApiKey', 'NoAuth')
 	async findUserById(
 	@param.path.string('id') id: string,
 	): Promise<BanReport> {
@@ -203,7 +194,7 @@ export class BansController {
 		},
 		security: [{ ApiKey: [] }],
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['CREATE'] })
 	async updateProof(
 		@param.path.number('id') id: number,
@@ -229,7 +220,7 @@ export class BansController {
 		},
 		security: [{ ApiKey: [] }],
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['CREATE'] })
 	async updateAltList(
 		@param.path.number('id') id: number,
@@ -249,7 +240,7 @@ export class BansController {
 	@response(204, {
 		description: 'BanReport PATCH success',
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['ADMIN'] })
 	@visibility(OperationVisibility.UNDOCUMENTED)
 	async updateById(
@@ -272,7 +263,7 @@ export class BansController {
 	@response(204, {
 		description: 'BanReport PUT success',
 	})
-	@authenticate('api-key')
+	@authenticate('ApiKey')
 	@authorize({ scopes: ['ADMIN'] })
 	@visibility(OperationVisibility.UNDOCUMENTED)
 	async replaceById(

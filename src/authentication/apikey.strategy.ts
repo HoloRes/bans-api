@@ -6,7 +6,6 @@ import {
 	OASEnhancer,
 	OpenApiSpec,
 	Request,
-	SecuritySchemeObject,
 } from '@loopback/rest';
 import {
 	asAuthStrategy,
@@ -24,15 +23,9 @@ interface Client {
 
 interface ExtendedClient extends Client, UserProfile {}
 
-export const schemeSpec: SecuritySchemeObject = {
-	type: 'apiKey',
-	in: 'header',
-	name: 'X-API-KEY',
-};
-
 @injectable(asAuthStrategy, asSpecEnhancer)
 export class ApiKeyAuthenticationStrategy implements AuthenticationStrategy, OASEnhancer {
-	name = 'api-key';
+	name = 'ApiKey';
 
 	constructor() {}
 
@@ -66,6 +59,10 @@ export class ApiKeyAuthenticationStrategy implements AuthenticationStrategy, OAS
 	}
 
 	modifySpec(spec: OpenApiSpec): OpenApiSpec {
-		return mergeSecuritySchemeToSpec(spec, this.name, schemeSpec);
+		return mergeSecuritySchemeToSpec(spec, this.name, {
+			type: 'apiKey',
+			in: 'header',
+			name: 'X-API-KEY',
+		});
 	}
 }
