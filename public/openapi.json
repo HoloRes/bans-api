@@ -349,18 +349,6 @@
     }
   ],
   "components": {
-    "securitySchemes": {
-      "ApiKey": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-KEY"
-      },
-      "api-key": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-KEY"
-      }
-    },
     "schemas": {
       "BanReport": {
         "title": "BanReport",
@@ -783,6 +771,13 @@
             "additionalProperties": true
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY"
       }
     }
   }
