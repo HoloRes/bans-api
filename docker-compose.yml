@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  api:
+    image: ghcr.io/holores/bans-api:production
+    restart: always
+    # Environment variables get set from .env, but you can specify them manually using the environment property. See docker-compose docs for more info.
+    # Below is only relevant when using Traefik v2
+    networks:
+      - proxy
+      - bans-api
+    ports:
+      #- 80:3000
+      # Port for ZeroMQ
+      - 5555:5555
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bansapi.entrypoints=http"
+      - "traefik.http.routers.bansapi.rule=Host(`bans.suisei.app`)"
+      - "traefik.http.routers.bansapi.middlewares=https-redirect@file"
+      - "traefik.http.routers.bansapi-secure.entrypoints=https"
+      - "traefik.http.routers.bansapi-secure.rule=Host(`bans.suisei.app`)"
+      - "traefik.http.routers.bansapi-secure.tls=true"
+      - "traefik.http.routers.bansapi-secure.tls.certresolver=http"
+      - "traefik.http.routers.bansapi-secure.service=bansapi"
+      - "traefik.http.services.bansapi.loadbalancer.server.port=3000"
+      - "traefik.docker.network=proxy"
+
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - bans-api
+
+  # When not using MongoDB Atlas, not recommended in small setups unless you somehow have the infrastructure to replicate properly.
+  # mongodb:
+  #   image: mongo:5-focal
+  #   restart: always
+  #   networks:
+  #     - bans-api
+  #   volumes:
+  #     - database:/data/db
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=root
+  #     - MONGO_INITDB_ROOT_PASSWORD=toor

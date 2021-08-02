@@ -19,7 +19,7 @@ export async function main(options: ApplicationConfig = {}) {
 if (require.main === module) {
 	// Connect mongoose
 	// eslint-disable-next-line no-void
-	void mongoose.connect('mongodb://localhost:27017/bans-api', {
+	void mongoose.connect(process.env.MONGODB_URL ?? 'mongodb://127.0.0.1:27017/bans-api', {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,
 		useFindAndModify: false,
@@ -37,7 +37,7 @@ if (require.main === module) {
 			// See https://www.npmjs.com/package/stoppable
 			gracePeriodForClose: 5000, // 5 seconds
 			openApiSpec: {
-				servers: [{ url: 'http://localhost:3000' }, { url: 'https://bans.suisei.app' }],
+				servers: process.env.NODE_ENV === 'production' ? [{ url: 'https://bans.suisei.app' }] : [{ url: 'http://localhost:3000' }],
 				// useful when used with OpenAPI-to-GraphQL to locate your application
 				setServersFromRequest: false,
 				endpointMapping: {
