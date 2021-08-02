@@ -1,46 +1,46 @@
 image: node:lts-buster
 
-pipelines:
-  default:
-    - parallel:
-      - step:
-          clone:
-            enabled: false
-          name: Mirror to GitHub
-          script:
-            - umask 000
-            - GIT_LFS_SKIP_SMUDGE=1 git clone --mirror https://x-token-auth:$REPOSITORY_OAUTH_ACCESS_TOKEN@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git repo
-            - cd repo
-            - git config user.name bitbucket-pipelines
-            - git config user.email commits-noreply@bitbucket.org
-            - git config push.default current
-            - git config http.${BITBUCKET_GIT_HTTP_ORIGIN}.proxy http://localhost:29418/
-            - git remote set-url origin http://bitbucket.org/$BITBUCKET_REPO_FULL_NAME
-            - git reflog expire --expire=all --all
-            #- echo ".bitbucket/pipelines/generated" >> .git/info/exclude
-            #- chmod 777 repo
-            - git push --mirror git@github.com:HoloRes/bans-api.git
+definitions:
+  steps:
+    - step: &mirror
+        clone:
+          enabled: false
+        name: Mirror to GitHub
+        script:
+          - umask 000
+          - GIT_LFS_SKIP_SMUDGE=1 git clone --mirror https://x-token-auth:$REPOSITORY_OAUTH_ACCESS_TOKEN@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git repo
+          - cd repo
+          - git config user.name bitbucket-pipelines
+          - git config user.email commits-noreply@bitbucket.org
+          - git config push.default current
+          - git config http.${BITBUCKET_GIT_HTTP_ORIGIN}.proxy http://localhost:29418/
+          - git remote set-url origin http://bitbucket.org/$BITBUCKET_REPO_FULL_NAME
+          - git reflog expire --expire=all --all
+          #- echo ".bitbucket/pipelines/generated" >> .git/info/exclude
+          #- chmod 777 repo
+          - git push --mirror git@github.com:HoloRes/bans-api.git
 
-      - step:
-          name: Build
-          script:
-            - IMAGE_NAME=$BITBUCKET_REPO_SLUG
-            - REPO_URL=$BITBUCKET_GIT_HTTP_ORIGIN
-            - docker build . --file Dockerfile --tag ${IMAGE_NAME}
-              --label "org.opencontainers.image.url"="${REPO_URL}"
-              --label "org.opencontainers.image.source"="${REPO_URL}"
-              --label "org.opencontainers.image.title"="${BITBUCKET_REPO_SLUG}"
-              --label "org.opencontainers.image.licenses"="MIT"
-              --label "org.opencontainers.image.revision"="${BITBUCKET_COMMIT}"
-              --label "org.opencontainers.image.version"="${BITBUCKET_BRANCH}"
-            - docker save ${IMAGE_NAME} --output "${IMAGE_NAME}.tar"
-          services:
-            - docker
-          caches:
-            - docker
-          artifacts:
-            - "*.tar"
-    - step:
+    - step: &build
+        name: Build
+        script:
+          - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+          - REPO_URL=$BITBUCKET_GIT_HTTP_ORIGIN
+          - docker build . --file Dockerfile --tag ${IMAGE_NAME}
+            --label "org.opencontainers.image.url"="${REPO_URL}"
+            --label "org.opencontainers.image.source"="${REPO_URL}"
+            --label "org.opencontainers.image.title"="${BITBUCKET_REPO_SLUG}"
+            --label "org.opencontainers.image.licenses"="MIT"
+            --label "org.opencontainers.image.revision"="${BITBUCKET_COMMIT}"
+            --label "org.opencontainers.image.version"="${BITBUCKET_BRANCH}"
+          - docker save ${IMAGE_NAME} --output "${IMAGE_NAME}.tar"
+        services:
+          - docker
+        caches:
+          - docker
+        artifacts:
+          - "*.tar"
+
+    - step: &publish
         name: Push to GHCR
         script:
           - IMAGE_NAME=$BITBUCKET_REPO_SLUG
@@ -53,8 +53,22 @@ pipelines:
         services:
           - docker
 
+pipelines:
+  default:
+    - parallel:
+        - step: *mirror
+        - step: *build
+
+    - step: *publish
+
   pull-requests:
     master:
+      - parallel:
+          - step: *mirror
+          - step: *build
+
+      - step: *publish
+
       - step:
           name: Create Sentry release
           script:
@@ -83,6 +97,12 @@ pipelines:
 
   branches:
     main:
+      - parallel:
+          - step: *mirror
+          - step: *build
+
+      - step: *publish
+
       - step:
           script:
             - IMAGE_NAME=$BITBUCKET_REPO_SLUG
