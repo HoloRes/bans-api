@@ -19,10 +19,20 @@ import {
 } from '@loopback/rest';
 import helmet from 'helmet';
 import { RateLimitAction, RateLimitSecurityBindings } from 'loopback4-ratelimiter';
+import * as Sentry from '@sentry/node';
 
 const middlewareList: ExpressRequestHandler[] = [
 	helmet({ contentSecurityPolicy: false }),
 ];
+
+if (process.env.SENTRY_DSN) {
+	Sentry.init({
+		dsn: process.env.SENTRY_DSN,
+	});
+	middlewareList.push(Sentry.Handlers.requestHandler());
+	// @ts-expect-error not assignable to
+	middlewareList.push(Sentry.Handlers.errorHandler());
+}
 
 export class MySequence implements SequenceHandler {
 	constructor(

@@ -2,20 +2,117 @@ image: node:lts-buster
 
 pipelines:
   default:
+    - parallel:
+      - step:
+          clone:
+            enabled: false
+          name: Mirror to GitHub
+          script:
+            - umask 000
+            - GIT_LFS_SKIP_SMUDGE=1 git clone --mirror https://x-token-auth:$REPOSITORY_OAUTH_ACCESS_TOKEN@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git repo
+            - cd repo
+            - git config user.name bitbucket-pipelines
+            - git config user.email commits-noreply@bitbucket.org
+            - git config push.default current
+            - git config http.${BITBUCKET_GIT_HTTP_ORIGIN}.proxy http://localhost:29418/
+            - git remote set-url origin http://bitbucket.org/$BITBUCKET_REPO_FULL_NAME
+            - git reflog expire --expire=all --all
+            #- echo ".bitbucket/pipelines/generated" >> .git/info/exclude
+            #- chmod 777 repo
+            - git push --mirror git@github.com:HoloRes/bans-api.git
+
+      - step:
+          name: Build
+          script:
+            - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+            - REPO_URL=$BITBUCKET_GIT_HTTP_ORIGIN
+            - docker build . --file Dockerfile --tag ${IMAGE_NAME}
+              --label "org.opencontainers.image.url"="${REPO_URL}"
+              --label "org.opencontainers.image.source"="${REPO_URL}"
+              --label "org.opencontainers.image.title"="${BITBUCKET_REPO_SLUG}"
+              --label "org.opencontainers.image.licenses"="MIT"
+              --label "org.opencontainers.image.revision"="${BITBUCKET_COMMIT}"
+              --label "org.opencontainers.image.version"="${BITBUCKET_BRANCH}"
+            - docker save ${IMAGE_NAME} --output "${IMAGE_NAME}.tar"
+          services:
+            - docker
+          caches:
+            - docker
+          artifacts:
+            - "*.tar"
     - step:
-        clone:
-          enabled: false
-        name: Mirror to GitHub
+        name: Push to GHCR
         script:
-          - umask 000
-          - GIT_LFS_SKIP_SMUDGE=1 git clone --mirror https://x-token-auth:$REPOSITORY_OAUTH_ACCESS_TOKEN@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git repo
-          - cd repo
-          - git config user.name bitbucket-pipelines
-          - git config user.email commits-noreply@bitbucket.org
-          - git config push.default current
-          - git config http.${BITBUCKET_GIT_HTTP_ORIGIN}.proxy http://localhost:29418/
-          - git remote set-url origin http://bitbucket.org/$BITBUCKET_REPO_FULL_NAME
-          - git reflog expire --expire=all --all
-          #- echo ".bitbucket/pipelines/generated" >> .git/info/exclude
-          #- chmod 777 repo
-          - git push --mirror git@github.com:HoloRes/bans-api.git
+          - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+          - docker load --input "${IMAGE_NAME}.tar"
+          - echo ${DOCKER_PASSWORD} | docker login ghcr.io --username "$DOCKER_USERNAME" --password-stdin
+          - VERSION=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+          - IMAGE=ghcr.io/${DOCKER_NAMESPACE}/${IMAGE_NAME}
+          - docker tag "${IMAGE_NAME}" "${IMAGE}:${VERSION}"
+          - docker push "${IMAGE}:${VERSION}"
+        services:
+          - docker
+
+  pull-requests:
+    master:
+      - step:
+          name: Create Sentry release
+          script:
+            - pipe: holores/sentry-new-release:0.4.0
+              variables:
+                SENTRY_AUTH_TOKEN: $SENTRY_TOKEN
+                SENTRY_ORG: $SENTRY_ORG
+                SENTRY_URL: $SENTRY_URL
+                SENTRY_PROJECT: $SENTRY_PROJECT
+                ENVIRONMENT: 'staging'
+
+      - step:
+          name: Deploy to Staging
+          deployment: Staging
+          script:
+            # Create and push Docker image
+            - echo ${DOCKER_PASSWORD} | docker login ghcr.io --username "$DOCKER_USERNAME" --password-stdin
+            - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+            - docker load --input "${IMAGE_NAME}.tar"
+            - ENVIRONMENT="staging"
+            - IMAGE=ghcr.io/${DOCKER_NAMESPACE}/${IMAGE_NAME}
+            - docker tag "${IMAGE_NAME}" "${IMAGE}:${ENVIRONMENT}"
+            - docker push "${IMAGE}:${ENVIRONMENT}"
+          services:
+            - docker
+
+  branches:
+    main:
+      - step:
+          script:
+            - VERSION=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+            - IMAGE=ghcr.io/${DOCKERHUB_NAMESPACE}/${IMAGE_NAME}
+            - pipe: anchore/anchore-scan:0.2.14
+              variables:
+                IMAGE_NAME: "${IMAGE}:${VERSION}"
+
+      - step:
+          name: Create Sentry release
+          script:
+            - pipe: holores/sentry-new-release:0.4.0
+              variables:
+                SENTRY_AUTH_TOKEN: $SENTRY_TOKEN
+                SENTRY_ORG: $SENTRY_ORG
+                SENTRY_URL: $SENTRY_URL
+                SENTRY_PROJECT: $SENTRY_PROJECT
+                ENVIRONMENT: 'production'
+
+      - step:
+          name: Deploy to Production
+          deployment: Production
+          script:
+            # Create and push Docker image
+            - echo ${DOCKER_PASSWORD} | docker login ghcr.io --username "$DOCKER_USERNAME" --password-stdin
+            - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+            - docker load --input "${IMAGE_NAME}.tar"
+            - ENVIRONMENT="production"
+            - IMAGE=ghcr.io/${DOCKER_NAMESPACE}/${IMAGE_NAME}
+            - docker tag "${IMAGE_NAME}" "${IMAGE}:${ENVIRONMENT}"
+            - docker push "${IMAGE}:${ENVIRONMENT}"
+          services:
+            - docker

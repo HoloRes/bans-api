@@ -26,7 +26,9 @@ async function sendWarningEmail(webhook: IWebhook) {
 		dynamicTemplateData: {
 			webhookurl: webhook.url,
 		},
-	}).catch(() => {});
+	}).catch((err) => {
+		console.error(JSON.stringify(err, null, 2));
+	});
 }
 
 export async function publishRemoval(id: string) {
@@ -34,16 +36,18 @@ export async function publishRemoval(id: string) {
 	const webhooks = await Webhook.find({ subscriptions: 'delete', disabled: false }).exec();
 
 	webhooks.forEach((webhook) => {
+		const data = {
+			type: 'delete',
+			ban: id,
+		};
+
 		const signature = crypto
 			.createHmac('sha256', webhook.secret)
-			.update(Buffer.from(id).toString('base64'))
+			.update(Buffer.from(JSON.stringify(data)).toString('base64'))
 			.digest('hex')
 			.toUpperCase();
 
-		axios.post(webhook.url, {
-			type: 'delete',
-			ban: id,
-		}, {
+		axios.post(webhook.url, data, {
 			headers: {
 				'X-Signature': signature,
 			},
@@ -73,16 +77,18 @@ export async function publish(type: string, document: BanReport) {
 	const webhooks = await Webhook.find({ subscriptions: type, disabled: false }).exec();
 
 	webhooks.forEach((webhook) => {
+		const data = {
+			type,
+			ban: (webhook.permissions.includes('VIEWALL') ? document : publicDocument),
+		};
+
 		const signature = crypto
 			.createHmac('sha256', webhook.secret)
-			.update(Buffer.from(JSON.stringify(document)).toString('base64'))
+			.update(Buffer.from(JSON.stringify(data)).toString('base64'))
 			.digest('hex')
 			.toUpperCase();
 
-		axios.post(webhook.url, {
-			type,
-			ban: (webhook.permissions.includes('VIEWALL') ? document : publicDocument),
-		}, {
+		axios.post(webhook.url, data, {
 			headers: {
 				'X-Signature': signature,
 			},

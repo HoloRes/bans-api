@@ -52,3 +52,17 @@ if (require.main === module) {
 		process.exit(1);
 	});
 }
+
+// Sentry Event Frame rewriting
+declare global {
+	namespace NodeJS {
+		interface Global {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			__rootdir__: string;
+		}
+	}
+}
+
+// @ts-expect-error Any type
+// eslint-disable-next-line no-underscore-dangle
+global.__rootdir__ = __dirname || process.cwd();
