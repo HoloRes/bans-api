@@ -46,12 +46,12 @@ export class BansController {
 			'application/json': {
 				schema: getModelSchemaRef(BanReport, {
 					title: 'NewBanReport',
-					exclude: ['id'],
+					exclude: ['id', 'active', 'valid', 'appealed'],
 				}),
 			},
 		},
 	})
-		banReport: Omit<BanReport, 'id'>,
+		banReport: Omit<BanReport, 'id'|'active'|'valid'|'appealed'>,
 	): Promise<BanReport> {
 		const document = await this.banReportRepository.create(banReport);
 		await publish('create', document);
