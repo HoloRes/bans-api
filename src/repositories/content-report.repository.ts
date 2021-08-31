@@ -1,20 +1,21 @@
 import { inject } from '@loopback/core';
 import { DataObject, DefaultCrudRepository, Options } from '@loopback/repository';
 import { MongoDbDataSource } from '../datasources';
-import { BanReport, BanReportRelations } from '../models';
+import { ContentReport, ContentReportRelations } from '../models';
 
-export class BanReportRepository extends DefaultCrudRepository<
-	BanReport,
-	typeof BanReport.prototype.id,
-	BanReportRelations
+export class ContentReportRepository extends DefaultCrudRepository<
+	ContentReport,
+	typeof ContentReport.prototype.id,
+	ContentReportRelations
 	> {
 	constructor(
 		@inject('datasources.MongoDB') dataSource: MongoDbDataSource,
 	) {
-		super(BanReport, dataSource);
+		super(ContentReport, dataSource);
 	}
 
-	public async create(entity: DataObject<BanReport>, options?: Options): Promise<BanReport> {
+	// eslint-disable-next-line max-len
+	public async create(entity: DataObject<ContentReport>, options?: Options): Promise<ContentReport> {
 		if (!this.dataSource.connected) {
 			await this.dataSource.connect();
 		}

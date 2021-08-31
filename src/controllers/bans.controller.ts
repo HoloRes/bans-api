@@ -58,7 +58,7 @@ export class BansController {
 		return document;
 	}
 
-	@get('/count')
+	@get('/ban/count')
 	@response(200, {
 		description: 'BanReport model count',
 		content: { 'application/json': { schema: CountSchema } },
@@ -69,7 +69,7 @@ export class BansController {
 		return this.banReportRepository.count(where);
 	}
 
-	@get('/list')
+	@get('/ban/list')
 	@response(200, {
 		description: 'Array of BanReport model instances',
 		content: {
@@ -94,7 +94,7 @@ export class BansController {
 		}) as BanReport[];
 	}
 
-	@get('/find')
+	@get('/ban/find')
 	@response(200, {
 		description: 'Array of BanReport model instances',
 		content: {

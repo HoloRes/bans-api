@@ -11,8 +11,8 @@ export default socket;
 
 socket.bindSync(`tcp://0.0.0.0:${process.env.ZEROMQ_PORT ?? '5555'}`);
 
-if (!process.env.SENDGRID_API_KEY) throw new Error('Environment variable SENDGRID_API_KEY is not set!');
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+/* if (!process.env.SENDGRID_API_KEY) throw new Error('Environment variable SENDGRID_API_KEY is not set!');
+sendgrid.setApiKey(process.env.SENDGRID_API_KEY); */
 
 async function sendWarningEmail(webhook: IWebhook) {
 	const user = await User.findById(webhook.owner).exec().catch(() => {});
@@ -33,6 +33,7 @@ async function sendWarningEmail(webhook: IWebhook) {
 
 export async function publishRemoval(id: string) {
 	socket.send(['delete', id]);
+	// @ts-expect-error doesn't match signature
 	const webhooks = await Webhook.find({ subscriptions: 'delete', disabled: false }).exec();
 
 	webhooks.forEach((webhook) => {
@@ -74,6 +75,7 @@ export async function publish(type: string, document: BanReport) {
 	const { proof: _, ...publicDocument } = document;
 	socket.send([type, JSON.stringify(publicDocument)]);
 
+	// @ts-expect-error doesn't match signature
 	const webhooks = await Webhook.find({ subscriptions: type, disabled: false }).exec();
 
 	webhooks.forEach((webhook) => {

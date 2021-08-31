@@ -19,11 +19,7 @@ export async function main(options: ApplicationConfig = {}) {
 if (require.main === module) {
 	// Connect mongoose
 	// eslint-disable-next-line no-void
-	void mongoose.connect(process.env.MONGODB_URL ?? 'mongodb://127.0.0.1:27017/bans-api', {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
-		useFindAndModify: false,
-	});
+	void mongoose.connect(process.env.MONGODB_URL ?? 'mongodb://127.0.0.1:27017/bans-api');
 
 	// Run the application
 	const config = {

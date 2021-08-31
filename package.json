@@ -72,9 +72,9 @@
   },
   "devDependencies": {
     "@loopback/build": "7.0.0",
+    "@loopback/cli": "^2.21.2",
     "@loopback/eslint-config": "11.0.0",
     "@loopback/testlab": "3.4.2",
-    "@types/mongoose": "5.11.97",
     "@types/node": "16.7.1",
     "@types/zeromq": "5.2.0",
     "eslint": "7.32.0",
