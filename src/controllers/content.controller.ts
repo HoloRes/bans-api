@@ -15,12 +15,13 @@ import {
 	put,
 	del,
 	requestBody,
-	response,
+	response, visibility,
 } from '@loopback/rest';
 import { inject } from '@loopback/context';
 import { SecurityBindings, UserProfile } from '@loopback/security';
 import { authenticate } from '@loopback/authentication';
 import { authorize } from '@loopback/authorization';
+import { OperationVisibility } from '@loopback/openapi-v3';
 import { ContentReport } from '../models';
 import { ContentReportRepository } from '../repositories';
 
@@ -89,6 +90,8 @@ export class ContentController {
 		description: 'ContentReport PATCH success count',
 		content: { 'application/json': { schema: CountSchema } },
 	})
+	@authorize({ scopes: ['ADMIN'] })
+	@visibility(OperationVisibility.UNDOCUMENTED)
 	async updateAll(
 		@requestBody({
 			content: {
@@ -123,6 +126,8 @@ export class ContentController {
 	@response(204, {
 		description: 'ContentReport PATCH success',
 	})
+	@authorize({ scopes: ['ADMIN'] })
+	@visibility(OperationVisibility.UNDOCUMENTED)
 	async updateById(
 		@param.path.number('id') id: number,
 		@requestBody({
@@ -141,6 +146,8 @@ export class ContentController {
 	@response(204, {
 		description: 'ContentReport PUT success',
 	})
+	@authorize({ scopes: ['ADMIN'] })
+	@visibility(OperationVisibility.UNDOCUMENTED)
 	async replaceById(
 		@param.path.number('id') id: number,
 		@requestBody() contentReport: ContentReport,
@@ -152,6 +159,8 @@ export class ContentController {
 	@response(204, {
 		description: 'ContentReport DELETE success',
 	})
+	@authorize({ scopes: ['ADMIN'] })
+	@visibility(OperationVisibility.UNDOCUMENTED)
 	async deleteById(@param.path.number('id') id: number): Promise<void> {
 		await this.contentReportRepository.deleteById(id);
 	}
