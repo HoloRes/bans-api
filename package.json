@@ -1,6 +1,6 @@
 {
   "name": "bans-api",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "description": "Suisei bans API",
   "keywords": [
     "loopback-application",
@@ -79,7 +79,7 @@
     "@types/zeromq": "5.2.0",
     "eslint": "7.32.0",
     "eslint-config-airbnb-base": "14.2.1",
-    "eslint-plugin-import": "2.25.1",
+    "eslint-plugin-import": "2.25.2",
     "express": "4.17.1",
     "source-map-support": "0.5.20",
     "typescript": "4.3.5"
