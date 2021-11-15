@@ -1,6 +1,6 @@
 {
   "name": "bans-api",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Suisei bans API",
   "keywords": [
     "loopback-application",
@@ -64,7 +64,7 @@
     "helmet": "^4.6.0",
     "loopback-connector-kv-redis": "^4.0.0",
     "loopback-connector-mongodb": "^6.0.0",
-    "loopback4-ratelimiter": "^2.2.0",
+    "loopback4-ratelimiter": "^3.0.0",
     "mongoose": "^6.0.0",
     "mongoose-hidden": "^1.9.1",
     "tslib": "^2.3.0",
