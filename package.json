@@ -1,6 +1,6 @@
 {
   "name": "bans-api",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Suisei bans API",
   "keywords": [
     "loopback-application",
@@ -82,6 +82,6 @@
     "eslint-plugin-import": "2.25.2",
     "express": "4.17.1",
     "source-map-support": "0.5.20",
-    "typescript": "4.3.5"
+    "typescript": "4.5.2"
   }
 }
