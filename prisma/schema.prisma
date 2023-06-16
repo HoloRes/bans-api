@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Permission {
+  VIEW
+  CREATE
+  ADMIN
+}
+
+enum Subscription {
+  USER
+  CONTENT
+  ALT
+}
+
+model Webhook {
+  id            String         @id @default(cuid())
+  url           String
+  owner         String
+  secret        String
+  disabled      Boolean        @default(false)
+  subscriptions Subscription[]
+  failures      Int
+  permissions   Permission[]
+}
+
+model DiscordUser {
+  id                String   @id
+  lastKnownUsername String
+  pastUsernames     String[]
+
+  reports        UserReport[] @relation("reports")
+  createdReports UserReport[] @relation("createdReports")
+}
+
+model ApiKey {
+  id          String       @id
+  key         String       @unique
+  permissions Permission[]
+}
+
+model UserAltList {
+  id            String   @id @default(cuid())
+  mainAccountId String
+  alts          String[]
+}
+
+enum UserReportType {
+  NORMAL
+  COMPROMISED
+}
+
+model UserReport {
+  id          BigInt         @id @default(autoincrement())
+  user        DiscordUser    @relation("reports", fields: [userId], references: [id])
+  userId      String
+  moderator   DiscordUser    @relation("createdReports", fields: [moderatorId], references: [id])
+  moderatorId String
+  type        UserReportType
+  reason      String
+  proof       String[]
+  active      Boolean        @default(true)
+  valid       Boolean        @default(true)
+  appealed    Boolean        @default(false)
+}
+
+enum ContentReportType {
+  DOX
+  PASTLIFE
+  UNRELEASED
+}
+
+model ContentReport {
+  id        BigInt            @id @default(autoincrement())
+  reason    String?
+  type      ContentReportType
+  link      String
+  validTill DateTime?
+}
