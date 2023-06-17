@@ -39,8 +39,9 @@ model DiscordUser {
   lastKnownUsername String
   pastUsernames     String[]
 
-  reports        UserReport[] @relation("reports")
-  createdReports UserReport[] @relation("createdReports")
+  reports             UserReport[]  @relation("reports")
+  createdUserReports  UserReport[]  @relation("createdReports")
+  createdUserBanLists UserBanList[]
 }
 
 model ApiKey {
@@ -61,17 +62,29 @@ enum UserReportType {
 }
 
 model UserReport {
-  id          BigInt         @id @default(autoincrement())
-  user        DiscordUser    @relation("reports", fields: [userId], references: [id])
-  userId      String
-  moderator   DiscordUser    @relation("createdReports", fields: [moderatorId], references: [id])
-  moderatorId String
-  type        UserReportType
-  reason      String
-  proof       String[]
-  active      Boolean        @default(true)
-  valid       Boolean        @default(true)
-  appealed    Boolean        @default(false)
+  id             BigInt         @id @default(autoincrement())
+  user           DiscordUser    @relation("reports", fields: [userId], references: [id])
+  userId         String
+  moderator      DiscordUser    @relation("createdReports", fields: [moderatorId], references: [id])
+  moderatorId    String
+  type           UserReportType
+  reason         String
+  proof          String[]
+  active         Boolean        @default(true)
+  valid          Boolean        @default(true)
+  appealed       Boolean        @default(false)
+  inactiveReason String?
+}
+
+model UserBanList {
+  id               String      @id @default(cuid())
+  users            String[]
+  moderator        DiscordUser @relation(fields: [moderatorId], references: [id])
+  moderatorId      String
+  reason           String
+  proof            String[]
+  valid            Boolean     @default(true)
+  invalidateReason String?
 }
 
 enum ContentReportType {

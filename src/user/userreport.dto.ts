@@ -6,6 +6,7 @@ import {
 	IsIn, IsNotEmpty, IsNumberString, IsString, Length,
 } from 'class-validator';
 
+// POST request body's
 export class UserReportCreateBody {
 	@ApiProperty({
 		description: 'Id of the reported user.',
@@ -72,9 +73,29 @@ export class UserReportEditBody {
 		proof?: string[];
 }
 
+export class AddProofBody {
+	@ApiProperty({
+		description: 'List of links to images/files that show proof.',
+		type: [String],
+	})
+		proof: string[];
+}
+
+export class UserReportInvalidateBody {
+	@ApiProperty({
+		description: 'The reason for invalidating the user report.',
+	})
+	@IsNotEmpty()
+	@IsString()
+		inactiveReason: string;
+}
+
+// Prisma mappings for responses
 export class DiscordUser implements PrismaDiscordUser {
 	@ApiProperty({
 		description: 'Id of the user.',
+		minLength: 18,
+		maxLength: 18,
 	})
 		id: string;
 
@@ -103,6 +124,8 @@ export class UserReport implements PrismaUserReport {
 
 	@ApiProperty({
 		description: 'Id of the reported user.',
+		minLength: 18,
+		maxLength: 18,
 	})
 		userId: string;
 
@@ -114,6 +137,8 @@ export class UserReport implements PrismaUserReport {
 
 	@ApiProperty({
 		description: 'Id of the moderator who created the report.',
+		minLength: 18,
+		maxLength: 18,
 	})
 		moderatorId: string;
 
@@ -150,6 +175,12 @@ export class UserReport implements PrismaUserReport {
 		example: false,
 	})
 		appealed: boolean;
+
+	@ApiProperty({
+		description: 'If the report is inactive, this field will contain the reason why.',
+		required: false,
+	})
+		inactiveReason: string | null;
 }
 
 export class UserFindReports {
@@ -196,12 +227,4 @@ export class UserReportList {
 
 	@ApiProperty()
 		total: number;
-}
-
-export class UserReportAddProof {
-	@ApiProperty({
-		description: 'List of links to images/files that show proof.',
-		type: [String],
-	})
-		proof: string[];
 }

@@ -32,8 +32,8 @@ async function bootstrap() {
 	// OpenAPI documentation
 	const SwaggerConfig = new DocumentBuilder()
 		.setTitle('Bans API')
-		.setDescription('API for Discord bots in the VTuber sphere to share bans, part of project Suisei\'s Mic')
-		.setVersion('0.1')
+		.setDescription('API for Discord bots in the VTuber sphere to share bans, part of project "Suisei\'s Mic".')
+		.setVersion('0.1.0')
 		.setContact('GoldElysium', '', 'goldelysium@gmail.com')
 		.setLicense('MIT', '')
 		.addApiKey({

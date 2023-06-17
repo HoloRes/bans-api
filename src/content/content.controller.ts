@@ -1,13 +1,15 @@
 import {
-	BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query,
+	BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query,
 } from '@nestjs/common';
 import {
 	ApiCreatedResponse,
 	ApiForbiddenResponse,
-	ApiOkResponse, ApiOperation,
+	ApiOkResponse,
+	ApiOperation,
 	ApiParam,
 	ApiQuery,
-	ApiSecurity, ApiTags,
+	ApiSecurity,
+	ApiTags,
 } from '@nestjs/swagger';
 import { Permissions } from '../auth/permissions.decorator';
 import { Permission } from '../auth/permission.enum';
@@ -66,7 +68,7 @@ export class ContentController {
 			take: Math.min(limit, 250),
 		});
 
-		const reportCount = await this.prisma.userReport.count();
+		const reportCount = await this.prisma.contentReport.count();
 
 		return {
 			reports,
@@ -138,7 +140,7 @@ export class ContentController {
 	@ApiOkResponse({ description: 'The deleted report.', type: ContentReport })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({
-		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
+		name: 'id', type: 'number', description: 'Content report id', schema: { minimum: 0 },
 	})
 	async deleteReport(@Param('id') id: string): Promise<ContentReport> {
 		return this.prisma.contentReport.delete({

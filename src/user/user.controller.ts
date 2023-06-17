@@ -19,9 +19,9 @@ import { PrismaService } from '../prisma.service';
 import {
 	UserFindReports,
 	UserReport,
-	UserReportAddProof,
+	AddProofBody,
 	UserReportCreateBody,
-	UserReportEditBody,
+	UserReportEditBody, UserReportInvalidateBody,
 	UserReportList,
 } from './userreport.dto';
 import { DiscordService } from '../discord.service';
@@ -79,7 +79,7 @@ export class UserController {
 	@ApiParam({
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
-	async addProof(@Body() data: UserReportAddProof, @Param('id') id: string): Promise<UserReport> {
+	async addProof(@Body() data: AddProofBody, @Param('id') id: string): Promise<UserReport> {
 		const report = await this.prisma.userReport.findUnique({
 			where: {
 				id: BigInt(id),
@@ -239,7 +239,7 @@ export class UserController {
 	@ApiParam({
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
-	async invalidateReport(@Param('id') id: string): Promise<UserReport> {
+	async invalidateReport(@Body() body: UserReportInvalidateBody, @Param('id') id: string): Promise<UserReport> {
 		return this.prisma.userReport.update({
 			where: {
 				id: BigInt(id),
@@ -247,6 +247,34 @@ export class UserController {
 			data: {
 				active: false,
 				valid: false,
+				...body,
+			},
+			include: {
+				user: true,
+				moderator: true,
+			},
+		});
+	}
+
+	@Post('report/:id/appeal')
+	@HttpCode(200)
+	@Permissions(Permission.Admin)
+	@ApiSecurity('apiKey', ['ADMIN'])
+	@ApiOperation({ description: 'Set a user report to the appealed status.' })
+	@ApiOkResponse({ description: 'The updated report.', type: UserReport })
+	@ApiForbiddenResponse({ description: 'Forbidden.' })
+	@ApiParam({
+		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
+	})
+	async appealReport(@Body() body: UserReportInvalidateBody, @Param('id') id: string): Promise<UserReport> {
+		return this.prisma.userReport.update({
+			where: {
+				id: BigInt(id),
+			},
+			data: {
+				active: false,
+				appealed: true,
+				...body,
 			},
 			include: {
 				user: true,

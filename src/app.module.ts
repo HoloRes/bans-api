@@ -6,9 +6,10 @@ import { PrismaService } from './prisma.service';
 import { UserController } from './user/user.controller';
 import { DiscordService } from './discord.service';
 import { ContentController } from './content/content.controller';
+import { BanlistController } from './user/banlist/banlist.controller';
 
 @Module({
-	controllers: [UserController, ContentController],
+	controllers: [UserController, ContentController, BanlistController],
 	providers: [
 		PrismaService,
 		DiscordService,
