@@ -1,5 +1,4 @@
 // eslint-disable-next-line max-classes-per-file
-import type { ContentReport as PrismaContentReport } from '@prisma/client';
 import { ContentReportType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {

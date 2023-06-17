@@ -40,7 +40,7 @@ export class DiscordService extends REST implements OnModuleInit {
 			newList.push(user.username);
 		}
 
-		this.prisma.discordUser.upsert({
+		await this.prisma.discordUser.upsert({
 			where: {
 				id,
 			},

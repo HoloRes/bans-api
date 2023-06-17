@@ -7,18 +7,22 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma.service';
 
-async function bootstrap() {
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	// eslint-disable-next-line func-names,no-extend-native
-	BigInt.prototype.toJSON = function () {
-		return this.toString();
-	};
+declare global {
+	interface BigInt {
+		toJSON: () => string;
+	}
+}
 
+// eslint-disable-next-line func-names,no-extend-native
+BigInt.prototype.toJSON = function () {
+	return this.toString();
+};
+
+async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
 
 	// Enable auto-validation
-	app.useGlobalPipes(new ValidationPipe());
+	app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
 	// Helmet
 	app.use(helmet());
@@ -33,7 +37,7 @@ async function bootstrap() {
 	const SwaggerConfig = new DocumentBuilder()
 		.setTitle('Bans API')
 		.setDescription('API for Discord bots in the VTuber sphere to share bans, part of project "Suisei\'s Mic".')
-		.setVersion('0.1.0')
+		.setVersion('0.2.0')
 		.setContact('GoldElysium', '', 'goldelysium@gmail.com')
 		.setLicense('MIT', '')
 		.addApiKey({

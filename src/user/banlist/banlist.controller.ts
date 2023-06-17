@@ -25,12 +25,17 @@ import {
 } from './banlist.dto';
 import { DiscordService } from '../../discord.service';
 import { AddProofBody } from '../userreport.dto';
+import { PublishService } from '../../publish.service';
 
 @ApiTags('User ban lists')
 @ApiSecurity('apiKey')
 @Controller('user/banlist')
 export class BanlistController {
-	constructor(private prisma: PrismaService, private discord: DiscordService) {}
+	constructor(
+		private prisma: PrismaService,
+		private discord: DiscordService,
+		private publishService: PublishService,
+	) {}
 
 	// Public create and edit operations
 	@Post('create')
@@ -49,12 +54,16 @@ export class BanlistController {
 			throw err;
 		}
 
-		return this.prisma.userBanList.create({
+		const banList = await this.prisma.userBanList.create({
 			data,
 			include: {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('userbanlist', 'update', banList).then();
+
+		return banList;
 	}
 
 	@Post(':id/proof')
@@ -84,7 +93,7 @@ export class BanlistController {
 			await this.discord.upsertUser(banList.moderatorId);
 		} catch { /* empty */ }
 
-		return this.prisma.userBanList.update({
+		const updatedBanList = await this.prisma.userBanList.update({
 			where: {
 				id,
 			},
@@ -95,6 +104,10 @@ export class BanlistController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('userbanlist', 'update', updatedBanList).then();
+
+		return updatedBanList;
 	}
 
 	// Generic find operations
@@ -183,7 +196,7 @@ export class BanlistController {
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Ban list id' })
 	async editBanList(@Body() data: UserBanListEditBody, @Param('id') id: string): Promise<UserBanList> {
-		return this.prisma.userBanList.update({
+		const updatedBanList = await this.prisma.userBanList.update({
 			where: {
 				id,
 			},
@@ -192,6 +205,10 @@ export class BanlistController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('userbanlist', 'update', updatedBanList).then();
+
+		return updatedBanList;
 	}
 
 	@Post(':id/invalidate')
@@ -202,7 +219,7 @@ export class BanlistController {
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Ban list id' })
 	async invalidateBanList(@Body() body: UserBanListInvalidateBody, @Param('id') id: string): Promise<UserBanList> {
-		return this.prisma.userBanList.update({
+		const updatedBanList = await this.prisma.userBanList.update({
 			where: {
 				id,
 			},
@@ -214,6 +231,10 @@ export class BanlistController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('userbanlist', 'update', updatedBanList).then();
+
+		return updatedBanList;
 	}
 
 	@Delete(':id')
@@ -223,7 +244,7 @@ export class BanlistController {
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Ban list id' })
 	async deleteBanList(@Param('id') id: string): Promise<UserBanList> {
-		return this.prisma.userBanList.delete({
+		const deletedBanList = await this.prisma.userBanList.delete({
 			where: {
 				id,
 			},
@@ -231,5 +252,9 @@ export class BanlistController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('userbanlist', 'delete', deletedBanList).then();
+
+		return deletedBanList;
 	}
 }

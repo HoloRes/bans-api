@@ -19,18 +19,20 @@ enum Permission {
 
 enum Subscription {
   USER
+  USERBANLIST
   CONTENT
   ALT
 }
 
 model Webhook {
   id            String         @id @default(cuid())
+  name          String
   url           String
   owner         String
   secret        String
   disabled      Boolean        @default(false)
   subscriptions Subscription[]
-  failures      Int
+  failures      Int            @default(0)
   permissions   Permission[]
 }
 
@@ -48,6 +50,8 @@ model ApiKey {
   id          String       @id
   key         String       @unique
   permissions Permission[]
+  name        String
+  owner       String
 }
 
 model UserAltList {

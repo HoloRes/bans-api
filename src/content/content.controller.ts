@@ -17,12 +17,13 @@ import { PrismaService } from '../prisma.service';
 import {
 	ContentReport, ContentReportCreateBody, ContentReportEditBody, ContentReportList,
 } from './content.dto';
+import { PublishService } from '../publish.service';
 
 @ApiSecurity('apiKey')
 @ApiTags('Content')
 @Controller('content')
 export class ContentController {
-	constructor(private prisma: PrismaService) {}
+	constructor(private prisma: PrismaService, private publishService: PublishService) {}
 
 	// Public create and edit operations
 	@Post('report')
@@ -42,12 +43,16 @@ export class ContentController {
 			validTill = new Date(parsedTimestamp);
 		}
 
-		return this.prisma.contentReport.create({
+		const report = await this.prisma.contentReport.create({
 			data: {
 				validTill,
 				...data,
 			},
 		});
+
+		this.publishService.publish('content', 'update', report).then();
+
+		return report;
 	}
 
 	// Generic find operations
@@ -126,12 +131,16 @@ export class ContentController {
 		name: 'id', type: 'number', description: 'Content report id', schema: { minimum: 0 },
 	})
 	async editReport(@Body() data: ContentReportEditBody, @Param('id') id: string): Promise<ContentReport> {
-		return this.prisma.contentReport.update({
+		const updatedReport = await this.prisma.contentReport.update({
 			where: {
 				id: BigInt(id),
 			},
 			data,
 		});
+
+		this.publishService.publish('content', 'update', updatedReport).then();
+
+		return updatedReport;
 	}
 
 	@Delete('report/:id')
@@ -143,10 +152,14 @@ export class ContentController {
 		name: 'id', type: 'number', description: 'Content report id', schema: { minimum: 0 },
 	})
 	async deleteReport(@Param('id') id: string): Promise<ContentReport> {
-		return this.prisma.contentReport.delete({
+		const deletedReport = await this.prisma.contentReport.delete({
 			where: {
 				id: BigInt(id),
 			},
 		});
+
+		this.publishService.publish('content', 'delete', deletedReport).then();
+
+		return deletedReport;
 	}
 }

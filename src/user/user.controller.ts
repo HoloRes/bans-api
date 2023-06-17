@@ -25,12 +25,17 @@ import {
 	UserReportList,
 } from './userreport.dto';
 import { DiscordService } from '../discord.service';
+import { PublishService } from '../publish.service';
 
 @ApiSecurity('apiKey')
 @ApiTags('Users')
 @Controller('user')
 export class UserController {
-	constructor(private prisma: PrismaService, private discord: DiscordService) {}
+	constructor(
+		private prisma: PrismaService,
+		private discord: DiscordService,
+		private publishService: PublishService,
+	) {}
 
 	// Public create and edit operations
 	@Post('report')
@@ -60,13 +65,17 @@ export class UserController {
 			throw err;
 		}
 
-		return this.prisma.userReport.create({
+		const report = await this.prisma.userReport.create({
 			data: reportData,
 			include: {
 				user: true,
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'create', report).then();
+
+		return report;
 	}
 
 	@Post('report/:id/proof')
@@ -100,7 +109,7 @@ export class UserController {
 			await this.discord.upsertUser(report.moderatorId);
 		} catch { /* empty */ }
 
-		return this.prisma.userReport.update({
+		const updatedReport = await this.prisma.userReport.update({
 			where: {
 				id: BigInt(id),
 			},
@@ -112,6 +121,10 @@ export class UserController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'update', updatedReport).then();
+
+		return updatedReport;
 	}
 
 	// Generic find operations
@@ -218,7 +231,7 @@ export class UserController {
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
 	async editReport(@Body() data: UserReportEditBody, @Param('id') id: string): Promise<UserReport> {
-		return this.prisma.userReport.update({
+		const updatedReport = await this.prisma.userReport.update({
 			where: {
 				id: BigInt(id),
 			},
@@ -228,6 +241,10 @@ export class UserController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'update', updatedReport).then();
+
+		return updatedReport;
 	}
 
 	@Post('report/:id/invalidate')
@@ -240,7 +257,7 @@ export class UserController {
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
 	async invalidateReport(@Body() body: UserReportInvalidateBody, @Param('id') id: string): Promise<UserReport> {
-		return this.prisma.userReport.update({
+		const updatedReport = await this.prisma.userReport.update({
 			where: {
 				id: BigInt(id),
 			},
@@ -254,6 +271,10 @@ export class UserController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'update', updatedReport).then();
+
+		return updatedReport;
 	}
 
 	@Post('report/:id/appeal')
@@ -267,7 +288,7 @@ export class UserController {
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
 	async appealReport(@Body() body: UserReportInvalidateBody, @Param('id') id: string): Promise<UserReport> {
-		return this.prisma.userReport.update({
+		const updatedReport = await this.prisma.userReport.update({
 			where: {
 				id: BigInt(id),
 			},
@@ -281,6 +302,10 @@ export class UserController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'update', updatedReport).then();
+
+		return updatedReport;
 	}
 
 	@Delete('report/:id')
@@ -292,7 +317,7 @@ export class UserController {
 		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
 	})
 	async deleteReport(@Param('id') id: string): Promise<UserReport> {
-		return this.prisma.userReport.delete({
+		const deletedReport = await this.prisma.userReport.delete({
 			where: {
 				id: BigInt(id),
 			},
@@ -301,5 +326,9 @@ export class UserController {
 				moderator: true,
 			},
 		});
+
+		this.publishService.publish('user', 'delete', deletedReport).then();
+
+		return deletedReport;
 	}
 }
