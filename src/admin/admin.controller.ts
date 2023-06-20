@@ -204,6 +204,7 @@ export class AdminController {
 				id: true,
 				url: true,
 				name: true,
+				disabled: true,
 				subscriptions: true,
 			},
 		});
@@ -267,6 +268,7 @@ export class AdminController {
 				id: true,
 				url: true,
 				name: true,
+				disabled: true,
 				subscriptions: true,
 			},
 		});

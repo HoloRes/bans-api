@@ -122,6 +122,11 @@ export class EditWebhookBody {
 		name?: string;
 
 	@ApiProperty({
+		description: 'If the webhook is disabled.',
+	})
+		disabled?: boolean;
+
+	@ApiProperty({
 		description: 'List of subscriptions.',
 		type: [String],
 		enum: Object.values(Subscription),
@@ -139,6 +144,11 @@ export class Webhook {
 		description: 'URL',
 	})
 		url: string;
+
+	@ApiProperty({
+		description: 'If the webhook is disabled.',
+	})
+		disabled: boolean;
 
 	@ApiProperty({
 		description: 'User friendly name.',
