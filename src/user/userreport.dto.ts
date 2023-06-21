@@ -13,7 +13,7 @@ export class UserReportCreateBody {
 	})
 	@IsNotEmpty()
 	@IsNumberString({ no_symbols: true })
-	@Length(18, 18)
+	@Length(18)
 		userId: string;
 
 	@ApiProperty({
@@ -21,7 +21,7 @@ export class UserReportCreateBody {
 	})
 	@IsNotEmpty()
 	@IsNumberString({ no_symbols: true })
-	@Length(18, 18)
+	@Length(18)
 		moderatorId: string;
 
 	@ApiProperty({

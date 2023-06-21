@@ -30,7 +30,7 @@ export class CreateApiKeyBody {
 	})
 	@IsNotEmpty()
 	@IsNumberString({ no_symbols: true })
-	@Length(18, 18)
+	@Length(18)
 		owner: string;
 }
 export class EditApiKeyBody {
@@ -97,7 +97,7 @@ export class CreateWebhookBody {
 	})
 	@IsNotEmpty()
 	@IsNumberString({ no_symbols: true })
-	@Length(18, 18)
+	@Length(18)
 		owner: string;
 
 	@ApiProperty({

@@ -37,7 +37,8 @@ async function bootstrap() {
 	const SwaggerConfig = new DocumentBuilder()
 		.setTitle('Bans API')
 		.setDescription('API for Discord bots in the VTuber sphere to share bans, part of project "Suisei\'s Mic".')
-		.setVersion('0.2.1')
+		// eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
+		.setVersion(require('../package.json').version)
 		.setContact('GoldElysium', '', 'goldelysium@gmail.com')
 		.setLicense('MIT', '')
 		.addApiKey({

@@ -22,7 +22,7 @@ export class UserBanListCreateBody {
 	@IsNotEmpty()
 	@IsString()
 	@IsNumberString()
-	@Length(18, 18)
+	@Length(18)
 		moderatorId: string;
 
 	@ApiProperty({
