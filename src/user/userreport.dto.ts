@@ -3,7 +3,9 @@ import type { UserReport as PrismaUserReport, DiscordUser as PrismaDiscordUser }
 import { UserReportType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-	IsIn, IsNotEmpty, IsNumberString, IsString, Length,
+	ArrayNotEmpty,
+	IsArray,
+	IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, Length,
 } from 'class-validator';
 
 // POST request body's
@@ -43,33 +45,52 @@ export class UserReportCreateBody {
 	@ApiProperty({
 		description: 'List of links to images/files that show proof, optional.',
 	})
+	@IsOptional()
+	@IsArray()
 		proof?: string[];
 }
 export class UserReportEditBody {
 	@ApiProperty({
 		description: 'Id of the reported user.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsNumberString({ no_symbols: true })
+	@Length(18)
 		userId?: string;
 
 	@ApiProperty({
 		description: 'Id of the moderator creating the report.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsNumberString({ no_symbols: true })
+	@Length(18)
 		moderatorId?: string;
 
 	@ApiProperty({
 		description: 'The type of the user report.',
 		enum: Object.values(UserReportType),
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsIn(Object.values(UserReportType))
 		type?: UserReportType;
 
 	@ApiProperty({
 		description: 'Reason for the report.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		reason?: string;
 
 	@ApiProperty({
 		description: 'List of links to images/files that show proof, optional.',
 	})
+	@IsOptional()
+	@IsArray()
 		proof?: string[];
 }
 
@@ -78,6 +99,8 @@ export class AddProofBody {
 		description: 'List of links to images/files that show proof.',
 		type: [String],
 	})
+	@IsArray()
+	@ArrayNotEmpty()
 		proof: string[];
 }
 

@@ -2,7 +2,7 @@
 import type { UserBanList as PrismaUserBanList } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-	ArrayNotEmpty, IsArray, IsNotEmpty, IsNumberString, IsString, Length,
+	ArrayNotEmpty, IsArray, IsNotEmpty, IsNumberString, IsOptional, IsString, Length,
 } from 'class-validator';
 import { DiscordUser } from '../userreport.dto';
 
@@ -35,6 +35,8 @@ export class UserBanListCreateBody {
 	@ApiProperty({
 		description: 'List of links to images/files that show proof, optional.',
 	})
+	@IsOptional()
+	@IsArray()
 		proof?: string[];
 }
 
@@ -43,21 +45,34 @@ export class UserBanListEditBody {
 		description: 'List of user id\'s.',
 		type: [String],
 	})
+	@IsOptional()
+	@IsArray()
+	@ArrayNotEmpty()
 		users?: string[];
 
 	@ApiProperty({
 		description: 'Id of the moderator creating the report.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsNumberString()
+	@Length(18)
 		moderatorId?: string;
 
 	@ApiProperty({
 		description: 'Reason for the report.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		reason?: string;
 
 	@ApiProperty({
 		description: 'List of links to images/files that show proof, optional.',
 	})
+	@IsOptional()
+	@IsArray()
 		proof?: string[];
 }
 

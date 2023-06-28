@@ -2,7 +2,8 @@
 import { ContentReportType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-	IsIn, IsNotEmpty, IsString, IsUrl,
+	IsDateString,
+	IsIn, IsNotEmpty, IsOptional, IsString, IsUrl,
 } from 'class-validator';
 
 export class ContentReportCreateBody {
@@ -19,6 +20,9 @@ export class ContentReportCreateBody {
 		description: 'Reason for the report.',
 		required: false,
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		reason?: string;
 
 	@ApiProperty({
@@ -34,6 +38,10 @@ export class ContentReportCreateBody {
 		type: 'string',
 		format: 'date-time',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsDateString()
 		validTill?: string;
 }
 
@@ -42,17 +50,28 @@ export class ContentReportEditBody {
 		description: 'The type of the content report.',
 		enum: Object.values(ContentReportType),
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsIn(Object.values(ContentReportType))
 		type?: ContentReportType;
 
 	@ApiProperty({
 		description: 'Reason for the report.',
 		required: false,
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		reason?: string;
 
 	@ApiProperty({
 		description: 'Link to the reported content.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsUrl()
 		link?: string;
 
 	@ApiProperty({
@@ -60,6 +79,10 @@ export class ContentReportEditBody {
 		type: 'string',
 		format: 'date-time',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsDateString()
 		validTill?: string;
 }
 

@@ -1,10 +1,19 @@
 // eslint-disable-next-line max-classes-per-file
 import { ApiProperty } from '@nestjs/swagger';
 import {
-	ArrayNotEmpty, IsArray, IsIn, IsNotEmpty, IsNumberString, IsString, IsUrl, Length,
+	ArrayNotEmpty,
+	IsArray,
+	IsBoolean,
+	IsIn,
+	IsNotEmpty,
+	IsNumberString,
+	IsOptional,
+	IsString,
+	IsUrl,
+	Length,
 } from 'class-validator';
-import { Subscription } from '@prisma/client';
 import type { Permission as PrismaPermission } from '@prisma/client';
+import { Subscription } from '@prisma/client';
 import { Permission } from '../auth/permission.enum';
 
 // API keys
@@ -37,6 +46,9 @@ export class EditApiKeyBody {
 	@ApiProperty({
 		description: 'User friendly name for the API key.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		name?: string;
 
 	@ApiProperty({
@@ -44,6 +56,9 @@ export class EditApiKeyBody {
 		type: [String],
 		enum: Object.values(Permission),
 	})
+	@IsOptional()
+	@IsArray()
+	@ArrayNotEmpty()
 		permissions?: Permission[];
 }
 
@@ -114,16 +129,25 @@ export class EditWebhookBody {
 	@ApiProperty({
 		description: 'URL',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsUrl()
 		url?: string;
 
 	@ApiProperty({
 		description: 'User friendly name.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
 		name?: string;
 
 	@ApiProperty({
 		description: 'If the webhook is disabled.',
 	})
+	@IsOptional()
+	@IsBoolean()
 		disabled?: boolean;
 
 	@ApiProperty({
@@ -131,6 +155,9 @@ export class EditWebhookBody {
 		type: [String],
 		enum: Object.values(Subscription),
 	})
+	@IsOptional()
+	@IsArray()
+	@ArrayNotEmpty()
 		subscriptions?: Subscription[];
 }
 
