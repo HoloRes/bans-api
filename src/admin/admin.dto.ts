@@ -178,6 +178,11 @@ export class Webhook {
 		disabled: boolean;
 
 	@ApiProperty({
+		description: 'How many times this webhook has failed.',
+	})
+		failures: number;
+
+	@ApiProperty({
 		description: 'User friendly name.',
 	})
 		name: string;

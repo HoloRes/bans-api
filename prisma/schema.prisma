@@ -33,7 +33,6 @@ model Webhook {
   disabled      Boolean        @default(false)
   subscriptions Subscription[]
   failures      Int            @default(0)
-  permissions   Permission[]
 }
 
 model DiscordUser {
