@@ -82,7 +82,7 @@ export class AdminController {
 	@ApiParam({ name: 'id', description: 'Id of the API key.' })
 	async editApiKey(
 		@Body() data: EditApiKeyBody,
-			@Param() id: string,
+			@Param('id') id: string,
 	): Promise<APIKeyWithPermissions> {
 		return this.prisma.apiKey.update({
 			where: {
@@ -105,7 +105,7 @@ export class AdminController {
 	@ApiNotFoundResponse({ description: 'No API key found with that id.' })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Id of the API key.' })
-	async rollOverApiKey(@Param() id: string): Promise<APIKeyWithKey> {
+	async rollOverApiKey(@Param('id') id: string): Promise<APIKeyWithKey> {
 		const secret = crypto.randomBytes(16).toString('hex');
 
 		const key = `${id}.${secret}`;
@@ -135,7 +135,7 @@ export class AdminController {
 	@ApiNotFoundResponse({ description: 'No API key found with that id.' })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Id of the API key.' })
-	async deleteApiKey(@Param() id: string): Promise<void> {
+	async deleteApiKey(@Param('id') id: string): Promise<void> {
 		await this.prisma.apiKey.delete({
 			where: {
 				id,
@@ -150,7 +150,7 @@ export class AdminController {
 	@ApiOkResponse({ description: 'List of API keys.', type: [APIKeyWithPermissions] })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiQuery({ name: 'owner', description: 'Owner to search for.' })
-	async listApiKeysByOwner(@Query() owner: string): Promise<APIKeyWithPermissions[]> {
+	async listApiKeysByOwner(@Query('owner') owner: string): Promise<APIKeyWithPermissions[]> {
 		return this.prisma.apiKey.findMany({
 			where: {
 				owner,
@@ -194,7 +194,7 @@ export class AdminController {
 	@ApiNotFoundResponse({ description: 'No webhook found with that id.' })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Id of the webhook.' })
-	async editWebhook(@Body() data: EditWebhookBody, @Param() id: string): Promise<Webhook> {
+	async editWebhook(@Body() data: EditWebhookBody, @Param('id') id: string): Promise<Webhook> {
 		return this.prisma.webhook.update({
 			where: {
 				id,
@@ -218,7 +218,7 @@ export class AdminController {
 	@ApiNotFoundResponse({ description: 'No webhook found with that id.' })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Id of the webhook.' })
-	async rollOverWebhookSecret(@Param() id: string): Promise<WebhookSecret> {
+	async rollOverWebhookSecret(@Param('id') id: string): Promise<WebhookSecret> {
 		const secret = crypto.randomBytes(32).toString('hex');
 
 		await this.prisma.webhook.update({
@@ -244,7 +244,7 @@ export class AdminController {
 	@ApiNotFoundResponse({ description: 'No webhook found with that id.' })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiParam({ name: 'id', description: 'Id of the webhook.' })
-	async deleteWebhook(@Param() id: string): Promise<void> {
+	async deleteWebhook(@Param('id') id: string): Promise<void> {
 		await this.prisma.webhook.delete({
 			where: {
 				id,
@@ -259,7 +259,7 @@ export class AdminController {
 	@ApiOkResponse({ description: 'List of webhooks.', type: [Webhook] })
 	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	@ApiQuery({ name: 'owner', description: 'Owner to search for.' })
-	async listWebhooksByOwner(@Query() owner: string): Promise<Webhook[]> {
+	async listWebhooksByOwner(@Query('owner') owner: string): Promise<Webhook[]> {
 		return this.prisma.webhook.findMany({
 			where: {
 				owner,
