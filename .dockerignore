@@ -1,0 +1,8 @@
+/dist/
+/.idea/
+/node_modules
+/src/test
+/test/
+.env*
+src/**/*.spec.ts
+Dockerfile

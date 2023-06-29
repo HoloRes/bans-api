@@ -9,8 +9,10 @@ RUN corepack enable \
 COPY . .
 
 ENV NODE_ENV production
+RUN echo "DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/bansapi\"" > .env
 
-RUN pnpm build \
+RUN pnpm prisma generate \
+  && pnpm build \
   && pnpm prune --prod
 
 # Production image
@@ -22,6 +24,9 @@ RUN addgroup --system --gid 1001 nodejs \
 
 USER nodejs
 WORKDIR /app
+
+# Copy package.json
+COPY --from=builder /app/package.json ./package.json
 
 # Copy dependencies
 COPY --from=builder /app/node_modules ./node_modules

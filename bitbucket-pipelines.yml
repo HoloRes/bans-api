@@ -1,0 +1,97 @@
+image: node:lts-buster
+
+definitions:
+  steps:
+    - step: &mirror
+        clone:
+          enabled: false
+        name: Mirror to GitHub
+        script:
+          - umask 000
+          - GIT_LFS_SKIP_SMUDGE=1 git clone --mirror https://x-token-auth:$REPOSITORY_OAUTH_ACCESS_TOKEN@bitbucket.org/$BITBUCKET_REPO_FULL_NAME.git repo
+          - cd repo
+          - git config user.name bitbucket-pipelines
+          - git config user.email commits-noreply@bitbucket.org
+          - git config push.default current
+          - git config http.${BITBUCKET_GIT_HTTP_ORIGIN}.proxy http://localhost:29418/
+          - git remote set-url origin http://bitbucket.org/$BITBUCKET_REPO_FULL_NAME
+          - git reflog expire --expire=all --all
+          - git push --mirror git@github.com:HoloRes/bans-api.git
+
+    - step: &build
+        name: Build
+        script:
+          - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+          - REPO_URL=$BITBUCKET_GIT_HTTP_ORIGIN
+          - docker build . --file Dockerfile --tag ${IMAGE_NAME}
+            --label "org.opencontainers.image.url"="${REPO_URL}"
+            --label "org.opencontainers.image.source"="${REPO_URL}"
+            --label "org.opencontainers.image.title"="${BITBUCKET_REPO_SLUG}"
+            --label "org.opencontainers.image.licenses"="MIT"
+            --label "org.opencontainers.image.description"="A Discord bot specifically built for VTuber servers"
+            --label "org.opencontainers.image.revision"="${BITBUCKET_COMMIT}"
+            --label "org.opencontainers.image.version"="${BITBUCKET_BRANCH}"
+          - docker save ${IMAGE_NAME} --output "${IMAGE_NAME}.tar"
+        services:
+          - docker
+        caches:
+          - docker
+        artifacts:
+          - "*.tar"
+
+    - step: &publish
+        name: Push to GHCR
+        script:
+          - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+          - docker load --input "${IMAGE_NAME}.tar"
+          - echo ${DOCKER_PASSWORD} | docker login ghcr.io --username "$DOCKER_USERNAME" --password-stdin
+          - VERSION=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+          - IMAGE=ghcr.io/${DOCKER_NAMESPACE}/${IMAGE_NAME}
+          - docker tag "${IMAGE_NAME}" "${IMAGE}:${VERSION}"
+          - docker push "${IMAGE}:${VERSION}"
+        services:
+          - docker
+
+pipelines:
+  default:
+    - parallel:
+        - step: *mirror
+        - step: *build
+    - step: *publish
+
+  pull-requests:
+    main:
+      - parallel:
+          - step: *mirror
+          - step: *build
+      - step: *publish
+
+  branches:
+    main:
+      - parallel:
+          - step: *mirror
+          - step: *build
+
+      - step:
+          name: Publish docker tag
+          script:
+            # Extract package.json version
+            - export PACKAGE_VERSION=$(node --eval="process.stdout.write(require('./package.json').version)")
+            # Create and push Docker image
+            - VERSION=$(echo $BITBUCKET_COMMIT | cut -c1-7)
+            - echo ${DOCKER_PASSWORD} | docker login ghcr.io --username "$DOCKER_USERNAME" --password-stdin
+            - IMAGE_NAME=$BITBUCKET_REPO_SLUG
+            - docker load --input "${IMAGE_NAME}.tar"
+            - IMAGE=ghcr.io/${DOCKER_NAMESPACE}/${IMAGE_NAME}
+            - docker tag "${IMAGE_NAME}" "${IMAGE}:${PACKAGE_VERSION}"
+            - docker tag "${IMAGE_NAME}" "${IMAGE}:${VERSION}"
+            - docker push "${IMAGE}:${PACKAGE_VERSION}"
+            - docker push "${IMAGE}:${VERSION}"
+          services:
+            - docker
+
+    develop:
+      - parallel:
+          - step: *mirror
+          - step: *build
+      - step: *publish
