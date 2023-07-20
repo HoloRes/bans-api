@@ -19,7 +19,7 @@ amqplib.connect(process.env.RABBITMQ_URL, (err, conn) => {
 
 			console.log(' [*] Waiting for logs. To exit press CTRL+C');
 
-			['content'].forEach((topic) => {
+			['user', 'content'].forEach((topic) => {
 				ch.bindQueue(q.queue, 'bans-api', topic);
 			});
 

@@ -31,6 +31,7 @@ export class RabbitMQService implements OnModuleInit {
 		try {
 			await this.channel.publish('bans-api', topic, {
 				type,
+				topic,
 				data,
 			});
 		} catch (err) {

@@ -65,7 +65,7 @@ export class PublishService implements OnModuleInit {
 			content: Subscription.CONTENT,
 		};
 
-		const dataToPublish = { type, data };
+		const dataToPublish = { topic, type, data };
 
 		const webhooks = await this.prisma.webhook.findMany({
 			where: {
