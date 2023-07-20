@@ -4,7 +4,7 @@ import { UserReportType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {
 	ArrayNotEmpty,
-	IsArray,
+	IsArray, IsBoolean,
 	IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, Length,
 } from 'class-validator';
 
@@ -210,35 +210,56 @@ export class UserFindReports {
 	@ApiProperty({
 		description: 'Id of the reported user.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsNumberString({ no_symbols: true })
+	@Length(18)
 		userId?: string;
 
 	@ApiProperty({
 		description: 'Id of the moderator who created the report.',
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsNumberString({ no_symbols: true })
+	@Length(18)
 		moderatorId?: string;
 
 	@ApiProperty({
 		description: 'The type of the user report.',
-		enum: ['NORMAL', 'COMPROMISED'],
+		enum: Object.values(UserReportType),
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsString()
+	@IsIn(Object.values(UserReportType))
 		type?: UserReportType;
 
 	@ApiProperty({
 		description: 'AND of valid and appealed properties.',
 		example: true,
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsBoolean()
 		active?: boolean;
 
 	@ApiProperty({
 		description: 'If the report is valid.',
 		example: true,
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsBoolean()
 		valid?: boolean;
 
 	@ApiProperty({
 		description: 'If the report has been successfully appealed.',
 		example: false,
 	})
+	@IsOptional()
+	@IsNotEmpty()
+	@IsBoolean()
 		appealed?: boolean;
 }
 
