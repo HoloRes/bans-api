@@ -1,9 +1,19 @@
 import {
-	BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query,
+	BadRequestException,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	NotFoundException,
+	Param,
+	Patch,
+	Post,
+	Query,
 } from '@nestjs/common';
 import {
 	ApiCreatedResponse,
 	ApiForbiddenResponse,
+	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiOperation,
 	ApiParam,
@@ -79,6 +89,29 @@ export class ContentController {
 			reports,
 			total: reportCount,
 		};
+	}
+
+	@Get('report/:id')
+	@Permissions(Permission.View, Permission.Create, Permission.Admin)
+	@ApiOperation({ description: 'Find a content report by id.' })
+	@ApiOkResponse({ description: 'Found report.', type: ContentReport })
+	@ApiNotFoundResponse({ description: 'No report was found with that id.' })
+	@ApiForbiddenResponse({ description: 'Forbidden.' })
+	@ApiParam({
+		name: 'id', type: 'number', description: 'Content report id', schema: { minimum: 0 },
+	})
+	async findById(@Param('id') id: string): Promise<ContentReport> {
+		const report = await this.prisma.contentReport.findUnique({
+			where: {
+				id: BigInt(id),
+			},
+		});
+
+		if (!report) {
+			throw new NotFoundException('No report found with that id.');
+		}
+
+		return report;
 	}
 
 	@Get('find')

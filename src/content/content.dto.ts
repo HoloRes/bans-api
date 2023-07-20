@@ -110,7 +110,7 @@ export class ContentReport {
 		link: string;
 
 	@ApiProperty({
-		description: 'Time till which the report is valid',
+		description: 'Time till which the report is valid.',
 		type: 'string',
 		format: 'date-time',
 	})
