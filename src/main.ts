@@ -29,10 +29,6 @@ async function bootstrap() {
 
 	app.enableCors();
 
-	// Prisma
-	const prismaService = app.get(PrismaService);
-	await prismaService.enableShutdownHooks(app);
-
 	// Enable versioning
 	app.enableVersioning();
 
