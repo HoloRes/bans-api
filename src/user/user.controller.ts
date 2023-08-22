@@ -29,7 +29,10 @@ import { PublishService } from '../publish.service';
 
 @ApiSecurity('apiKey')
 @ApiTags('Users')
-@Controller('user')
+@Controller({
+	path: 'user',
+	version: '1',
+})
 export class UserController {
 	constructor(
 		private prisma: PrismaService,

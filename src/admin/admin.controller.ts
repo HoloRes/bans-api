@@ -1,5 +1,5 @@
 import {
-	Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query,
+	Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query, VERSION_NEUTRAL,
 } from '@nestjs/common';
 import {
 	ApiCreatedResponse,
@@ -37,7 +37,10 @@ import BASE62 from '../lib/base62';
 import { IsPublic } from '../auth/public.decorator';
 
 @ApiTags('Admin')
-@Controller('admin')
+@Controller({
+	path: 'admin',
+	version: VERSION_NEUTRAL,
+})
 export class AdminController {
 	private readonly b62 = baseX(BASE62);
 

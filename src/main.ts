@@ -33,6 +33,9 @@ async function bootstrap() {
 	const prismaService = app.get(PrismaService);
 	await prismaService.enableShutdownHooks(app);
 
+	// Enable versioning
+	app.enableVersioning();
+
 	// OpenAPI documentation
 	const SwaggerConfig = new DocumentBuilder()
 		.setTitle('Bans API')

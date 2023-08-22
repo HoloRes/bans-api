@@ -31,7 +31,10 @@ import { PublishService } from '../publish.service';
 
 @ApiSecurity('apiKey')
 @ApiTags('Content')
-@Controller('content')
+@Controller({
+	path: 'content',
+	version: '1',
+})
 export class ContentController {
 	constructor(private prisma: PrismaService, private publishService: PublishService) {}
 

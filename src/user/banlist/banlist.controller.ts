@@ -29,7 +29,10 @@ import { PublishService } from '../../publish.service';
 
 @ApiTags('User ban lists')
 @ApiSecurity('apiKey')
-@Controller('user/banlist')
+@Controller({
+	path: 'user/banlist',
+	version: '1',
+})
 export class BanlistController {
 	constructor(
 		private prisma: PrismaService,
