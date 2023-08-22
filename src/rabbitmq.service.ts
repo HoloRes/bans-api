@@ -2,8 +2,8 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import amqp from 'amqp-connection-manager';
 import type { ChannelWrapper } from 'amqp-connection-manager';
 import type { Channel } from 'amqplib';
-import type { IAmqpConnectionManager } from 'amqp-connection-manager/dist/esm/AmqpConnectionManager';
-import { PublishData } from './publish.service';
+import { IAmqpConnectionManager } from 'amqp-connection-manager/dist/types/AmqpConnectionManager';
+import type { PublishData } from './publish.service';
 
 @Injectable()
 export class RabbitMQService implements OnModuleInit {
