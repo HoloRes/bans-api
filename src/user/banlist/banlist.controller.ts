@@ -170,7 +170,7 @@ export class BanlistController {
 
 	@Get('search')
 	@Permissions(Permission.View, Permission.Create, Permission.Admin)
-	@ApiOperation({ description: 'Finds all ban lists containing the query using full text search.' })
+	@ApiOperation({ description: 'Finds all ban lists containing the query in the reason using full text search.' })
 	@ApiQuery({
 		name: 'query', type: 'string', description: 'String to search for',
 	})
@@ -183,6 +183,25 @@ export class BanlistController {
 				reason: {
 					search: query,
 					mode: caseInsensitive ? 'insensitive' : 'default',
+				},
+			},
+			include: {
+				moderator: true,
+			},
+		});
+	}
+
+	@Get('findUser')
+	@Permissions(Permission.View)
+	@ApiOperation({ description: 'Find ban lists containing this user id' })
+	@ApiQuery({
+		name: 'id', type: 'string', description: 'User id to search for',
+	})
+	async findByUserId(@Query('id') userId: string): Promise<UserBanList[]> {
+		return this.prisma.userBanList.findMany({
+			where: {
+				users: {
+					has: userId,
 				},
 			},
 			include: {

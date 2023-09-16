@@ -146,6 +146,7 @@ export class ContentController {
 	@ApiQuery({
 		name: 'caseInsensitive', type: 'boolean', description: 'Disable case sensitivity.', allowEmptyValue: true, schema: { default: false },
 	})
+	@ApiForbiddenResponse({ description: 'Forbidden.' })
 	async search(@Query('query') query: string, @Query('caseInsensitive') caseInsensitive = false): Promise<ContentReport[]> {
 		return this.prisma.contentReport.findMany({
 			where: {
