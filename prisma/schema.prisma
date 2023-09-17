@@ -94,6 +94,7 @@ enum ContentReportType {
   DOX
   PASTLIFE
   UNRELEASED
+  MISC
 }
 
 model ContentReport {

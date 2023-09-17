@@ -3,7 +3,7 @@ import {
 } from '@nestjs/common';
 import {
 	ApiCreatedResponse,
-	ApiForbiddenResponse,
+	ApiForbiddenResponse, ApiNoContentResponse,
 	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiOperation,
@@ -17,11 +17,12 @@ import { Permissions } from '../auth/permissions.decorator';
 import { Permission } from '../auth/permission.enum';
 import { PrismaService } from '../prisma.service';
 import {
+	AddProofBody,
 	UserFindReports,
 	UserReport,
-	AddProofBody,
 	UserReportCreateBody,
-	UserReportEditBody, UserReportInvalidateBody,
+	UserReportEditBody,
+	UserReportInvalidateBody,
 	UserReportList,
 } from './userreport.dto';
 import { DiscordService } from '../discord.service';
@@ -222,6 +223,40 @@ export class UserController {
 				moderator: true,
 			},
 		});
+	}
+
+	@Delete('report/compromised/:id')
+	@Permissions(Permission.Create, Permission.Admin)
+	@ApiOperation({ description: 'Delete a report for a compromised user.' })
+	@ApiNotFoundResponse({ description: 'No report found.' })
+	@ApiNoContentResponse({ description: 'Report successfully deleted.' })
+	@ApiForbiddenResponse({ description: 'Forbidden.' })
+	@ApiParam({
+		name: 'id', type: 'number', description: 'User report id', schema: { minimum: 0 },
+	})
+	async deleteCompromisedAccountReport(@Param('id') id: string) {
+		const report = await this.prisma.userReport.findFirst({
+			where: {
+				id: BigInt(id),
+				type: 'COMPROMISED',
+			},
+			include: {
+				user: true,
+				moderator: true,
+			},
+		});
+
+		if (!report) {
+			throw new NotFoundException('No report found matching the criteria.');
+		}
+
+		await this.prisma.userReport.delete({
+			where: {
+				id: BigInt(id),
+			},
+		});
+
+		this.publishService.publish('user', 'delete', report).then();
 	}
 
 	// Admin operations
